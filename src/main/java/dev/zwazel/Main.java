@@ -1,30 +1,31 @@
 package dev.zwazel;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
 public class Main {
     public static void main(String[] args) {
-        String serverAddress = "127.0.0.1";  // Must match Rust server
-        int port = 9999;                    // Must match Rust server
+        String serverAddress = "127.0.0.1";
+        int serverPort = 9999;
 
-        try (Socket socket = new Socket(serverAddress, port);
-             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+        try (Socket socket = new Socket(serverAddress, serverPort)) {
+            System.out.println("Java Client: connected to server " + serverAddress + ":" + serverPort);
 
-            System.out.println("Java Client: connected to server " + serverAddress + ":" + port);
+            // Send something
+            OutputStream out = socket.getOutputStream();
+            out.write("Hello from Java!\n".getBytes(StandardCharsets.UTF_8));
+            out.flush();
 
-            // Read the greeting from the Rust server
-            String serverMessage = in.readLine();
-            System.out.println("Java Client: received from server -> " + serverMessage);
-
-            // Send our own greeting back
-            String message = "Hello from Java!";
-            out.println(message);
-            System.out.println("Java Client: sent -> " + message);
-
+            // Read response
+            InputStream in = socket.getInputStream();
+            byte[] buf = new byte[1024];
+            int n = in.read(buf);
+            if (n > 0) {
+                String response = new String(buf, 0, n, StandardCharsets.UTF_8);
+                System.out.println("Got response: " + response);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
