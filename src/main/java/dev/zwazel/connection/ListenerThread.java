@@ -1,8 +1,13 @@
 package dev.zwazel.connection;
 
+import dev.zwazel.messages.MessageContainer;
+import dev.zwazel.messages.MessageParser;
 import lombok.RequiredArgsConstructor;
 
+import java.io.DataInputStream;
 import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 @RequiredArgsConstructor
 public class ListenerThread implements Runnable {
@@ -14,17 +19,24 @@ public class ListenerThread implements Runnable {
         Socket socket = manager.getSocket();
 
         try {
+            DataInputStream input = new DataInputStream(socket.getInputStream());
             while (!Thread.currentThread().isInterrupted()) {
-                manager.send();
+                byte[] lengthBytes = new byte[4];
+                input.readFully(lengthBytes);
+                int length = ByteBuffer.wrap(lengthBytes).order(ByteOrder.LITTLE_ENDIAN).getInt();
+                System.out.println("Received message length: " + length);
 
-                byte[] buffer = new byte[1024];
-                int bytesRead = socket.getInputStream().read(buffer);
-                if (bytesRead == -1) {
-                    System.out.println("Connection closed by remote host");
-                    break;
+                if (length == 0) {
+                    System.out.println("Received message length is zero.");
+                    return;
                 }
-                String message = new String(buffer, 0, bytesRead);
-                System.out.println("Received message: " + message);
+
+                byte[] data = new byte[length];
+                input.readFully(data);
+                System.out.println("Received message data: " + new String(data));
+
+                MessageContainer message = MessageParser.parseMessage(data);
+                System.out.println("Received message:\n" + message);
             }
         } catch (Exception e) {
             System.err.println("Error reading from socket");
