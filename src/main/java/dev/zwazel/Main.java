@@ -12,7 +12,8 @@ public class Main {
     private static final BlockingQueue<String> outgoingMessages = new LinkedBlockingQueue<>();
 
     public static void main(String[] args) {
-        String host = "127.0.0.1";
+        String host = "139.162.177.39";
+        //String host = "127.0.0.1";
         int port = 9999;
 
         if (!connectionManager.connect(host, port)) {
