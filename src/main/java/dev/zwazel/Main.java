@@ -2,24 +2,31 @@ package dev.zwazel;
 
 import dev.zwazel.connection.ConnectionManager;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Objects;
+import java.util.Properties;
 
 public class Main {
     // Shared queues
     private static final ConnectionManager connectionManager = ConnectionManager.getInstance();
-    private static final BlockingQueue<String> incomingMessages = new LinkedBlockingQueue<>();
-    private static final BlockingQueue<String> outgoingMessages = new LinkedBlockingQueue<>();
 
     public static void main(String[] args) {
-        String host = "139.162.177.39";
-        //String host = "127.0.0.1";
-        int port = 9999;
+        String rootPath = Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResource("")).getPath();
+        String appConfigPath = rootPath + "app.properties";
 
-        if (!connectionManager.connect(host, port)) {
-            System.out.println("Failed to connect to " + host + ":" + port);
+        try {
+            Properties appProps = new Properties();
+            appProps.load(new FileInputStream(appConfigPath));
+
+            String serverIp = appProps.getProperty("server.ip");
+            int serverPort = Integer.parseInt(appProps.getProperty("server.port"));
+
+            if (!connectionManager.connect(serverIp, serverPort)) {
+                System.err.println("Failed to connect to " + serverIp + ":" + serverPort);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-
-
     }
 }
