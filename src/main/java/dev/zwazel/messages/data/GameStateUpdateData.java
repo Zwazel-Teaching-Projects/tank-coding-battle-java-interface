@@ -1,4 +1,4 @@
-package dev.zwazel.messages.model;
+package dev.zwazel.messages.data;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import dev.zwazel.messages.MessageData;
