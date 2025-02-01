@@ -12,14 +12,13 @@ import java.nio.ByteOrder;
 @RequiredArgsConstructor
 public class ListenerThread implements Runnable {
     private final ConnectionManager manager;
+    private final DataInputStream input;
 
     @Override
     public void run() {
         System.out.println("Listener thread started");
-        Socket socket = manager.getSocket();
 
         try {
-            DataInputStream input = new DataInputStream(socket.getInputStream());
             while (!Thread.currentThread().isInterrupted()) {
                 byte[] lengthBytes = new byte[4];
                 input.readFully(lengthBytes);
