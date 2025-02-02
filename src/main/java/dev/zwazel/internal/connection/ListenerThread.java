@@ -1,18 +1,21 @@
-package dev.zwazel.connection;
+package dev.zwazel.internal.connection;
 
-import dev.zwazel.messages.MessageContainer;
-import dev.zwazel.messages.MessageParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.zwazel.internal.InternalGameWorld;
+import dev.zwazel.internal.messages.MessageContainer;
 import lombok.RequiredArgsConstructor;
 
 import java.io.DataInputStream;
-import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 @RequiredArgsConstructor
 public class ListenerThread implements Runnable {
     private final ConnectionManager manager;
+    private final InternalGameWorld world;
     private final DataInputStream input;
+
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
     public void run() {
@@ -34,8 +37,10 @@ public class ListenerThread implements Runnable {
                 input.readFully(data);
                 System.out.println("Received message data: " + new String(data));
 
-                MessageContainer message = MessageParser.parseMessage(data);
+                MessageContainer message = mapper.readValue(data, MessageContainer.class);
                 System.out.println("Received message:\n" + message);
+
+                world.pushIncomingMessage(message);
             }
         } catch (Exception e) {
             System.err.println("Error reading from socket");

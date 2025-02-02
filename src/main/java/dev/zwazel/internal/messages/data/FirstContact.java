@@ -1,7 +1,8 @@
-package dev.zwazel.messages.data;
+package dev.zwazel.internal.messages.data;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import dev.zwazel.messages.MessageData;
+import dev.zwazel.GameWorld;
+import dev.zwazel.internal.messages.MessageData;
 import lombok.Builder;
 import lombok.Data;
 
@@ -11,4 +12,9 @@ import lombok.Data;
 public class FirstContact implements MessageData {
     private final String name;
     private final String lobby_id;
+
+    @Override
+    public void applyOnReceive(GameWorld world) {
+
+    }
 }

@@ -1,7 +1,8 @@
-package dev.zwazel.connection;
+package dev.zwazel.internal.connection;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.zwazel.messages.MessageContainer;
+import dev.zwazel.internal.InternalGameWorld;
+import dev.zwazel.internal.messages.MessageContainer;
 import lombok.RequiredArgsConstructor;
 
 import java.io.DataOutputStream;
@@ -10,27 +11,21 @@ import java.nio.charset.StandardCharsets;
 @RequiredArgsConstructor
 public class WritingThread implements Runnable {
     private final ConnectionManager manager;
+    private final InternalGameWorld world;
     private final DataOutputStream output;
 
     @Override
     public void run() {
         System.out.println("Writing thread started");
 
-        try {
-
-            while (!Thread.currentThread().isInterrupted()) {
-                System.out.println("Waiting for message to send...");
-                MessageContainer message = manager.getOutgoingMessages().take();
-                System.out.println("Sending message:\n" + message);
-                send(message);
-            }
-        } catch (Exception e) {
-            System.err.println("Error writing to socket");
-            e.printStackTrace();
+        while (!Thread.currentThread().isInterrupted()) {
+            world.pollOutgoingMessage().ifPresent(this::send);
         }
     }
 
     public void send(MessageContainer message) {
+        System.out.println("Trying to send message:\n" + message);
+
         if (!manager.isConnected()) {
             System.err.println("Socket is not connected");
             return;

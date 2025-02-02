@@ -1,46 +1,53 @@
-package dev.zwazel.connection;
+package dev.zwazel.internal.connection;
 
-import dev.zwazel.ServerApplication;
-import dev.zwazel.messages.MessageContainer;
-import dev.zwazel.messages.MessageTarget;
-import dev.zwazel.messages.data.FirstContact;
+import dev.zwazel.PropertyHandler;
+import dev.zwazel.internal.InternalGameWorld;
+import dev.zwazel.internal.messages.MessageContainer;
+import dev.zwazel.internal.messages.MessageTarget;
+import dev.zwazel.internal.messages.data.FirstContact;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 public class ConnectionManager {
     private static ConnectionManager instance;
-    private final BlockingQueue<MessageContainer> incomingMessages = new LinkedBlockingQueue<>();
-    private final BlockingQueue<MessageContainer> outgoingMessages = new LinkedBlockingQueue<>();
+    private final PropertyHandler properties = PropertyHandler.getInstance();
+
+    private InternalGameWorld world;
     private Socket socket;
-    private Thread listenerThread;
-    private Thread writingThread;
 
     private ConnectionManager() {
         // Private constructor to prevent instantiation
     }
 
-    public static ConnectionManager getInstance() {
+    public static ConnectionManager getInstance(InternalGameWorld world) {
+        if (world == null) {
+            throw new IllegalStateException("World is not set");
+        }
+
         if (instance == null) {
             instance = new ConnectionManager();
+            instance.world = world;
         }
         return instance;
     }
 
-    public boolean connect(String host, int port) {
+    public boolean connect(String host, int port) throws IllegalStateException {
+        if (world == null) {
+            throw new IllegalStateException("World is not set");
+        }
+
         try {
             socket = new Socket(host, port);
             System.out.println("Connected to " + host + ":" + port);
 
             System.out.println("Starting listener thread...");
-            listenerThread = new Thread(new ListenerThread(instance, new DataInputStream(socket.getInputStream())), "Socket-Listener");
+            Thread listenerThread = new Thread(new ListenerThread(this, world, new DataInputStream(socket.getInputStream())), "Socket-Listener");
             listenerThread.start();
 
             System.out.println("Starting writing thread...");
-            writingThread = new Thread(new WritingThread(instance, new DataOutputStream(socket.getOutputStream())), "Socket-Writer");
+            Thread writingThread = new Thread(new WritingThread(this, world, new DataOutputStream(socket.getOutputStream())), "Socket-Writer");
             writingThread.start();
 
             // Sending first contact message
@@ -48,11 +55,11 @@ public class ConnectionManager {
             MessageContainer message = new MessageContainer(
                     MessageTarget.SERVER_ONLY,
                     FirstContact.builder()
-                            .lobby_id(ServerApplication.getProperty("lobby.id"))
-                            .name(ServerApplication.getProperty("bot.name"))
+                            .lobby_id(properties.getProperty("lobby.id"))
+                            .name(properties.getProperty("bot.name"))
                             .build()
             );
-            outgoingMessages.add(message);
+            world.getPublicGameWorld().send(message);
 
             return true;
         } catch (Exception e) {
@@ -62,16 +69,8 @@ public class ConnectionManager {
         return false;
     }
 
-    protected BlockingQueue<MessageContainer> getOutgoingMessages() {
-        return outgoingMessages;
-    }
-
     public boolean isConnected() {
         return socket != null && socket.isConnected();
-    }
-
-    public boolean allThreadsAlive() {
-        return listenerThread.isAlive() && writingThread.isAlive();
     }
 
 }
