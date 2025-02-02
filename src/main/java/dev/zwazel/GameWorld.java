@@ -1,5 +1,6 @@
 package dev.zwazel;
 
+import dev.zwazel.bot.BotInterface;
 import dev.zwazel.internal.GameSimulationThread;
 import dev.zwazel.internal.InternalGameWorld;
 import dev.zwazel.internal.PublicGameWorld;
@@ -26,7 +27,7 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
         // Private constructor to prevent instantiation
     }
 
-    public static void main(String[] args) {
+    public static void startGame(BotInterface bot) {
         GameWorld.getInstance().start();
     }
 
@@ -39,7 +40,7 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     }
 
 
-    public void start() {
+    private void start() {
         if (running) {
             System.err.println("Game world is already running!");
             return;
