@@ -1,11 +1,11 @@
 package dev.zwazel;
 
 import dev.zwazel.internal.GameSimulationThread;
-import dev.zwazel.internal.GameState;
 import dev.zwazel.internal.InternalGameWorld;
 import dev.zwazel.internal.PublicGameWorld;
 import dev.zwazel.internal.connection.ConnectionManager;
 import dev.zwazel.internal.messages.MessageContainer;
+import dev.zwazel.internal.messages.data.GameState;
 
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
@@ -15,13 +15,12 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     private static GameWorld instance;
 
     private final PropertyHandler properties = PropertyHandler.getInstance();
-    private ConnectionManager connection;
-    private final GameState gameState = GameState.getInstance();
-
     private final BlockingQueue<MessageContainer> incomingMessages = new LinkedBlockingQueue<>();
     private final BlockingQueue<MessageContainer> outgoingMessages = new LinkedBlockingQueue<>();
+    private ConnectionManager connection;
+    private GameState gameState;
 
-    private boolean running = false;
+    private volatile boolean running = false;
 
     private GameWorld() {
         // Private constructor to prevent instantiation
@@ -51,11 +50,11 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
         String serverIp = properties.getProperty("server.ip");
         int serverPort = Integer.parseInt(properties.getProperty("server.port"));
 
+        running = true;
         if (!connection.connect(serverIp, serverPort)) {
             System.err.println("Failed to connect to " + serverIp + ":" + serverPort);
+            running = false;
         } else {
-            running = true;
-
             Thread simulationThread = new Thread(new GameSimulationThread(instance), "Game-Simulation");
             simulationThread.start();
         }
@@ -72,14 +71,34 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     }
 
     @Override
+    public void updateState(GameState newState) {
+        gameState = newState;
+    }
+
+    @Override
     public boolean isRunning() {
         return running;
     }
 
     @Override
     public void send(MessageContainer message) {
-        // TODO: we need to validate the messages and check for duplicates and other stuff
+        /*
+         TODO:
+          - we need to validate the messages and check for duplicates and other stuff
+          - Rather use a set?
+        */
         outgoingMessages.add(message);
+    }
+
+    @Override
+    public GameState getGameState() {
+        return gameState;
+    }
+
+    @Override
+    public void stop() {
+        running = false;
+        connection.disconnect();
     }
 
     @Override

@@ -6,6 +6,7 @@ import dev.zwazel.internal.messages.MessageContainer;
 import lombok.RequiredArgsConstructor;
 
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 @RequiredArgsConstructor
@@ -18,37 +19,35 @@ public class WritingThread implements Runnable {
     public void run() {
         System.out.println("Writing thread started");
 
-        while (!Thread.currentThread().isInterrupted()) {
-            world.pollOutgoingMessage().ifPresent(this::send);
+        while (world.getPublicGameWorld().isRunning()) {
+            world.pollOutgoingMessage().ifPresent(message -> {
+                try {
+                    send(message);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    world.stop();
+                }
+            });
         }
     }
 
-    public void send(MessageContainer message) {
-        System.out.println("Trying to send message:\n" + message);
-
+    public void send(MessageContainer message) throws IOException {
         if (!manager.isConnected()) {
             System.err.println("Socket is not connected");
             return;
         }
 
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            String json = mapper.writeValueAsString(message);
-            byte[] jsonBytes = json.getBytes(StandardCharsets.UTF_8);
 
-            // Send the length prefix
-            output.writeInt(jsonBytes.length);
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(message);
+        byte[] jsonBytes = json.getBytes(StandardCharsets.UTF_8);
 
-            // Write the message
-            output.write(jsonBytes);
+        // Send the length prefix
+        output.writeInt(jsonBytes.length);
 
-            // Flush the dos
-            output.flush();
+        // Write the message
+        output.write(jsonBytes);
 
-            System.out.println("Sent message with " + jsonBytes.length + " bytes.\n" + json);
-        } catch (Exception e) {
-            System.err.println("Error sending message");
-            e.printStackTrace();
-        }
+        output.flush();
     }
 }

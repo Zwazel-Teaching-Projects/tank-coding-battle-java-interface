@@ -22,28 +22,24 @@ public class ListenerThread implements Runnable {
         System.out.println("Listener thread started");
 
         try {
-            while (!Thread.currentThread().isInterrupted()) {
+            while (world.getPublicGameWorld().isRunning()) {
                 byte[] lengthBytes = new byte[4];
                 input.readFully(lengthBytes);
                 int length = ByteBuffer.wrap(lengthBytes).order(ByteOrder.LITTLE_ENDIAN).getInt();
-                System.out.println("Received message length: " + length);
 
                 if (length == 0) {
-                    System.out.println("Received message length is zero.");
                     return;
                 }
 
                 byte[] data = new byte[length];
                 input.readFully(data);
-                System.out.println("Received message data: " + new String(data));
 
                 MessageContainer message = mapper.readValue(data, MessageContainer.class);
-                System.out.println("Received message:\n" + message);
-
-                world.pushIncomingMessage(message);
+                message.applyOnReceive(world);
             }
         } catch (Exception e) {
             System.err.println("Error reading from socket");
+            world.stop();
             e.printStackTrace();
         }
     }
