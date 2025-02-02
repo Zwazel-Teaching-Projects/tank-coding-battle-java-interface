@@ -19,6 +19,7 @@ public class GameSimulationThread implements Runnable {
 
             if (state != null && state.tick() > currentTickToProcess) {
                 currentTickToProcess = state.tick();
+                internalWorld.getBot().processTick(publicWorld);
 
                 // TODO: Process new Tick
             }

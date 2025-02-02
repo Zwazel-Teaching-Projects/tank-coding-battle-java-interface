@@ -20,6 +20,7 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     private final BlockingQueue<MessageContainer> outgoingMessages = new LinkedBlockingQueue<>();
     private ConnectionManager connection;
     private GameState gameState;
+    private BotInterface bot;
 
     private volatile boolean running = false;
 
@@ -28,7 +29,9 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     }
 
     public static void startGame(BotInterface bot) {
-        GameWorld.getInstance().start();
+        GameWorld gameWorld = GameWorld.getInstance();
+        gameWorld.bot = bot;
+        gameWorld.start();
     }
 
     private static GameWorld getInstance() {
@@ -110,5 +113,10 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     @Override
     public ConnectionManager getConnectionManager() {
         return connection;
+    }
+
+    @Override
+    public BotInterface getBot() {
+        return bot;
     }
 }
