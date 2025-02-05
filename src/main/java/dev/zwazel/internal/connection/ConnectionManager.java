@@ -55,6 +55,7 @@ public class ConnectionManager {
                             .lobbyId(properties.getProperty("lobby.id"))
                             .botName(properties.getProperty("bot.name"))
                             .mapName(properties.getProperty("lobby.map.name"))
+                            .teamName(properties.getProperty("lobby.team.name"))
                             .build()
             );
             world.getPublicGameWorld().send(message);

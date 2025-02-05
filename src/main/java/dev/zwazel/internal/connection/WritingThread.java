@@ -39,9 +39,8 @@ public class WritingThread implements Runnable {
         }
 
 
-        ObjectMapper mapper = new ObjectMapper();
-        // null values are not written
 
+        ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 
         String json = mapper.writeValueAsString(message);
