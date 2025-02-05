@@ -52,8 +52,9 @@ public class ConnectionManager {
             MessageContainer message = new MessageContainer(
                     MessageTarget.SERVER_ONLY,
                     FirstContact.builder()
-                            .lobby_id(properties.getProperty("lobby.id"))
-                            .name(properties.getProperty("bot.name"))
+                            .lobbyId(properties.getProperty("lobby.id"))
+                            .botName(properties.getProperty("bot.name"))
+                            .mapName(properties.getProperty("lobby.map.name"))
                             .build()
             );
             world.getPublicGameWorld().send(message);

@@ -1,5 +1,6 @@
 package dev.zwazel.internal.connection;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.zwazel.internal.InternalGameWorld;
 import dev.zwazel.internal.messages.MessageContainer;
@@ -39,6 +40,10 @@ public class WritingThread implements Runnable {
 
 
         ObjectMapper mapper = new ObjectMapper();
+        // null values are not written
+
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+
         String json = mapper.writeValueAsString(message);
         byte[] jsonBytes = json.getBytes(StandardCharsets.UTF_8);
 

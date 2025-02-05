@@ -1,4 +1,5 @@
 package dev.zwazel.internal.tanks;
 
-public class LightTank implements Tank {
+public interface LightTank extends Tank {
+    // TODO: Define light tank specific methods (if any)
 }
