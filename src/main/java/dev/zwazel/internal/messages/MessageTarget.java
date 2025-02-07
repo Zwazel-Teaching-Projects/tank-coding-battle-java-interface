@@ -5,5 +5,5 @@ public enum MessageTarget {
     /// If I get a message from the server, it will have a target of CLIENT (me)
     CLIENT,
     TEAM,
-    ALL
+    ALL_IN_LOBBY
 }
