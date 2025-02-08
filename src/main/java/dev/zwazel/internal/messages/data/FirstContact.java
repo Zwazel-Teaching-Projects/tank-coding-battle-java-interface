@@ -5,7 +5,7 @@ import dev.zwazel.internal.messages.MessageData;
 import lombok.Builder;
 
 @Builder
-public record FirstContact(String botName, String lobbyId, String mapName, String teamName,
+public record FirstContact(String botName, String lobbyName, String mapName, String teamName,
                            ClientType clientType) implements MessageData {
     @Override
     public void applyOnReceive(InternalGameWorld internalWorld) {

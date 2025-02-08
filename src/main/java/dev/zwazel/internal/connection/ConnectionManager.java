@@ -52,7 +52,7 @@ public class ConnectionManager {
             MessageContainer message = new MessageContainer(
                     MessageTarget.SERVER_ONLY,
                     FirstContact.builder()
-                            .lobbyId(properties.getProperty("lobby.id"))
+                            .lobbyName(properties.getProperty("lobby.name"))
                             .botName(properties.getProperty("bot.name"))
                             .mapName(properties.getProperty("lobby.map.name"))
                             .teamName(properties.getProperty("lobby.team.name"))
