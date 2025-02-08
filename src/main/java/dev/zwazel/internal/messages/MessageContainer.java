@@ -30,4 +30,11 @@ public final class MessageContainer {
 
         message.applyOnReceive(internalWorld);
     }
+
+    public void applyBeforeSend(InternalGameWorld internalWorld) {
+        GameState state = internalWorld.getPublicGameWorld().getGameState();
+        if (state != null) {
+            this.setTickSent(state.tick());
+        }
+    }
 }

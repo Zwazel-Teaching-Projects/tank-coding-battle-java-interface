@@ -38,7 +38,7 @@ public class WritingThread implements Runnable {
             return;
         }
 
-
+        message.applyBeforeSend(world);
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
