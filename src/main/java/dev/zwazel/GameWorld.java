@@ -7,6 +7,7 @@ import dev.zwazel.internal.PublicGameWorld;
 import dev.zwazel.internal.connection.ConnectionManager;
 import dev.zwazel.internal.messages.MessageContainer;
 import dev.zwazel.internal.messages.data.GameState;
+import dev.zwazel.internal.messages.data.ServerConfig;
 
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
@@ -22,6 +23,7 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     private GameState gameState;
     private BotInterface bot;
     private DebugMode debug = DebugMode.NONE;
+    private ServerConfig serverConfig;
 
     private volatile boolean running = false;
 
@@ -115,6 +117,16 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     @Override
     public boolean isInternalDebug() {
         return debug == DebugMode.INTERNAL;
+    }
+
+    @Override
+    public Long getMyClientId() {
+        return serverConfig != null ? serverConfig.clientId() : null;
+    }
+
+    @Override
+    public void setServerConfig(ServerConfig serverConfig) {
+        this.serverConfig = serverConfig;
     }
 
     @Override
