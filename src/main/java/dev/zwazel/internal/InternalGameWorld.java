@@ -10,6 +10,8 @@ import java.util.Optional;
 public interface InternalGameWorld {
     void stop();
 
+    boolean isInternalDebug();
+
     PublicGameWorld getPublicGameWorld();
 
     ConnectionManager getConnectionManager();

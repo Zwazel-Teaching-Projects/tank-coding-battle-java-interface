@@ -14,15 +14,21 @@ public class GameSimulationThread implements Runnable {
         PublicGameWorld publicWorld = internalWorld.getPublicGameWorld();
         long currentTickToProcess = 0;
 
-        while (publicWorld.isRunning()) {
-            GameState state = publicWorld.getGameState();
+        try {
+            while (publicWorld.isRunning()) {
+                GameState state = publicWorld.getGameState();
 
-            if (state != null && state.tick() > currentTickToProcess) {
-                currentTickToProcess = state.tick();
-                internalWorld.getBot().processTick(publicWorld);
+                if (state != null && state.tick() > currentTickToProcess) {
+                    currentTickToProcess = state.tick();
+                    internalWorld.getBot().processTick(publicWorld);
 
-                // TODO: Process new Tick
+                    // TODO: Process new Tick
+                }
             }
+        } catch (Exception e) {
+            System.err.println("Error processing game simulation");
+            internalWorld.stop();
+            e.printStackTrace();
         }
     }
 }

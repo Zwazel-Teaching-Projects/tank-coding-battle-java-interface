@@ -3,12 +3,13 @@ package dev.zwazel.internal.connection;
 import dev.zwazel.PropertyHandler;
 import dev.zwazel.internal.InternalGameWorld;
 import dev.zwazel.internal.messages.MessageContainer;
-import dev.zwazel.internal.messages.MessageTarget;
 import dev.zwazel.internal.messages.data.FirstContact;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
+
+import static dev.zwazel.internal.messages.MessageTarget.Type.SERVER_ONLY;
 
 public class ConnectionManager {
     private static ConnectionManager instance;
@@ -50,7 +51,7 @@ public class ConnectionManager {
 
             // Sending first contact message
             MessageContainer message = new MessageContainer(
-                    MessageTarget.SERVER_ONLY,
+                    SERVER_ONLY.get(),
                     FirstContact.builder()
                             .lobbyName(properties.getProperty("lobby.name"))
                             .botName(properties.getProperty("bot.name"))

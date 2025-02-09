@@ -28,6 +28,9 @@ public final class MessageContainer {
             this.setTickReceived(state.tick());
         }
 
+        if (internalWorld.isInternalDebug()) {
+            System.out.println("Received message:\n\t " + this);
+        }
         message.applyOnReceive(internalWorld);
     }
 

@@ -1,9 +1,52 @@
 package dev.zwazel.internal.messages;
 
-public enum MessageTarget {
-    SERVER_ONLY,
-    /// If I get a message from the server, it will have a target of CLIENT (me)
-    CLIENT,
-    TEAM,
-    ALL_IN_LOBBY
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import dev.zwazel.internal.messages.targets.ClientMessageTarget;
+import dev.zwazel.internal.messages.targets.LobbyMessageTarget;
+import dev.zwazel.internal.messages.targets.ServerOnlyMessageTarget;
+import dev.zwazel.internal.messages.targets.TeamMessageTarget;
+
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type"
+)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = ClientMessageTarget.class, name = "CLIENT"),
+        @JsonSubTypes.Type(value = LobbyMessageTarget.class, name = "ALL_IN_LOBBY"),
+        @JsonSubTypes.Type(value = ServerOnlyMessageTarget.class, name = "SERVER_ONLY"),
+        @JsonSubTypes.Type(value = TeamMessageTarget.class, name = "TEAM"),
+})
+public interface MessageTarget {
+    enum Type {
+        CLIENT(id -> {
+            if (id == null) {
+                throw new IllegalArgumentException("Client target requires a client ID");
+            }
+            return new ClientMessageTarget(id);
+        }),
+        ALL_IN_LOBBY(_ -> new LobbyMessageTarget()),
+        SERVER_ONLY(_ -> new ServerOnlyMessageTarget()),
+        TEAM(_ -> new TeamMessageTarget());
+
+        private final MessageTargetSupplier supplier;
+
+        Type(MessageTargetSupplier supplier) {
+            this.supplier = supplier;
+        }
+
+        public MessageTarget get() {
+            return this.supplier.get(null);
+        }
+
+        public MessageTarget get(Long clientId) {
+            return this.supplier.get(clientId);
+        }
+    }
+
+    @FunctionalInterface
+    interface MessageTargetSupplier {
+        MessageTarget get(Long clientId);
+    }
 }

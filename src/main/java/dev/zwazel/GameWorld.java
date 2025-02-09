@@ -21,6 +21,7 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     private ConnectionManager connection;
     private GameState gameState;
     private BotInterface bot;
+    private DebugMode debug = DebugMode.NONE;
 
     private volatile boolean running = false;
 
@@ -31,6 +32,7 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     public static void startGame(BotInterface bot) {
         GameWorld gameWorld = GameWorld.getInstance();
         gameWorld.bot = bot;
+        gameWorld.debug = DebugMode.valueOf(gameWorld.properties.getProperty("debug.mode").toUpperCase());
         gameWorld.start();
     }
 
@@ -85,6 +87,11 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     }
 
     @Override
+    public boolean isDebug() {
+        return debug == DebugMode.PUBLIC || debug == DebugMode.INTERNAL;
+    }
+
+    @Override
     public void send(MessageContainer message) {
         /*
          TODO:
@@ -106,6 +113,11 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     }
 
     @Override
+    public boolean isInternalDebug() {
+        return debug == DebugMode.INTERNAL;
+    }
+
+    @Override
     public PublicGameWorld getPublicGameWorld() {
         return instance;
     }
@@ -118,5 +130,11 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     @Override
     public BotInterface getBot() {
         return bot;
+    }
+
+    private enum DebugMode {
+        NONE,
+        INTERNAL,
+        PUBLIC,
     }
 }

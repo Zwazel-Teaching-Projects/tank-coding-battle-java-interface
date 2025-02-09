@@ -35,6 +35,7 @@ public class ListenerThread implements Runnable {
                 input.readFully(data);
 
                 MessageContainer message = mapper.readValue(data, MessageContainer.class);
+
                 message.applyOnReceive(world);
             }
         } catch (Exception e) {

@@ -39,11 +39,16 @@ public class WritingThread implements Runnable {
         }
 
         message.applyBeforeSend(world);
+        
+        if (world.isInternalDebug()) {
+            System.out.println("Sending message:\n\t" + message);
+        }
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 
         String json = mapper.writeValueAsString(message);
+
         byte[] jsonBytes = json.getBytes(StandardCharsets.UTF_8);
 
         // Send the length prefix
