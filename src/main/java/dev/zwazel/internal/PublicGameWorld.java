@@ -5,6 +5,7 @@ import dev.zwazel.internal.message.MessageContainer;
 import dev.zwazel.internal.message.data.GameConfig;
 import dev.zwazel.internal.message.data.GameState;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface PublicGameWorld {
@@ -23,4 +24,6 @@ public interface PublicGameWorld {
     ConnectedClientConfig[] getConnectedClients();
 
     GameConfig getGameConfig();
+
+    List<MessageContainer> getMessages();
 }

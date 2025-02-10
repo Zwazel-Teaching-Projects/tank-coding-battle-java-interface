@@ -39,9 +39,11 @@ public class ListenerThread implements Runnable {
                     System.out.println("Received message (JSON):\n\t" + message);
                 }
 
-                MessageContainer message = mapper.readValue(data, MessageContainer.class);
+                MessageContainer[] messages = mapper.readValue(data, MessageContainer[].class);
 
-                message.applyOnReceive(world);
+                for (MessageContainer message : messages) {
+                    message.applyOnReceive(world);
+                }
             }
         } catch (Exception e) {
             System.err.println("Error reading from socket");

@@ -10,8 +10,9 @@ import java.util.Optional;
 public record GameConfig(long tickRate, long clientId,
                          ConnectedClientConfig[] connectedClients) implements MessageData {
     @Override
-    public void applyOnReceive(InternalGameWorld internalWorld) {
+    public boolean applyOnReceive(InternalGameWorld internalWorld) {
         internalWorld.setGameConfig(this);
+        return false;
     }
 
     public Optional<ConnectedClientConfig> getClientConfig(String clientName) {

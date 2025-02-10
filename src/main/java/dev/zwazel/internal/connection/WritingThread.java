@@ -21,6 +21,7 @@ public class WritingThread implements Runnable {
         System.out.println("Writing thread started");
 
         while (world.getPublicGameWorld().isRunning()) {
+            // TODO: Should only send out messages at each tick, all at once, instead of sending them out as they come in
             world.pollOutgoingMessage().ifPresent(message -> {
                 try {
                     send(message);
@@ -39,7 +40,7 @@ public class WritingThread implements Runnable {
         }
 
         message.applyBeforeSend(world);
-        
+
         if (world.isInternalDebug()) {
             System.out.println("Sending message:\n\t" + message);
         }

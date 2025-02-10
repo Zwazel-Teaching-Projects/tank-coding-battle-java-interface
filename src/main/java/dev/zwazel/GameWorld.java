@@ -10,6 +10,7 @@ import dev.zwazel.internal.message.MessageContainer;
 import dev.zwazel.internal.message.data.GameConfig;
 import dev.zwazel.internal.message.data.GameState;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -85,6 +86,11 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     }
 
     @Override
+    public BlockingQueue<MessageContainer> getIncomingMessageQueue() {
+        return incomingMessages;
+    }
+
+    @Override
     public boolean isRunning() {
         return running;
     }
@@ -125,6 +131,16 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     }
 
     @Override
+    public void setGameConfig(GameConfig gameConfig) {
+        this.gameConfig = gameConfig;
+    }
+
+    @Override
+    public List<MessageContainer> getMessages() {
+        return List.copyOf(incomingMessages);
+    }
+
+    @Override
     public void stop() {
         running = false;
         connection.disconnect();
@@ -138,11 +154,6 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     @Override
     public Long getMyClientId() {
         return gameConfig != null ? gameConfig.clientId() : null;
-    }
-
-    @Override
-    public void setGameConfig(GameConfig gameConfig) {
-        this.gameConfig = gameConfig;
     }
 
     @Override

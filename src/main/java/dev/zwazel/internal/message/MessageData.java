@@ -15,7 +15,12 @@ import dev.zwazel.internal.message.data.*;
         @JsonSubTypes.Type(value = SuccessfullyJoinedLobby.class),
 })
 public interface MessageData {
-    default void applyOnReceive(InternalGameWorld internalWorld) {
-        // Do nothing by default
+    /**
+     * Applies to the world when received
+     * @param world
+     * @return if true, we add it to the Input Queue, so Bots can read them. If false, we don't.
+     */
+    default boolean applyOnReceive(InternalGameWorld world) {
+        return true;
     }
 }

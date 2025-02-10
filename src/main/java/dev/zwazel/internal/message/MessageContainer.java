@@ -12,10 +12,12 @@ public final class MessageContainer {
     private MessageTarget target;
     @Setter(AccessLevel.NONE)
     private MessageData message;
-    @Setter(AccessLevel.PRIVATE)
+    @Setter(AccessLevel.NONE)
     private long tickSent;
-    @Setter(AccessLevel.PRIVATE)
+    @Setter(AccessLevel.NONE)
     private long tickReceived;
+    @Setter(AccessLevel.NONE)
+    private Long sender;
 
     public MessageContainer(MessageTarget messageTarget, MessageData message) {
         this.target = messageTarget;
@@ -25,19 +27,22 @@ public final class MessageContainer {
     public void applyOnReceive(InternalGameWorld internalWorld) {
         GameState state = internalWorld.getPublicGameWorld().getGameState();
         if (state != null) {
-            this.setTickReceived(state.tick());
+            this.tickReceived = state.tick();
         }
 
         if (internalWorld.isInternalDebug()) {
             System.out.println("Received message (Serialized):\n\t " + this);
         }
-        message.applyOnReceive(internalWorld);
+
+        if (message.applyOnReceive(internalWorld)) {
+            internalWorld.pushIncomingMessage(this);
+        }
     }
 
     public void applyBeforeSend(InternalGameWorld internalWorld) {
         GameState state = internalWorld.getPublicGameWorld().getGameState();
         if (state != null) {
-            this.setTickSent(state.tick());
+            this.tickSent = state.tick();
         }
     }
 }

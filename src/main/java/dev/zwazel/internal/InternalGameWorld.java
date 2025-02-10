@@ -7,6 +7,7 @@ import dev.zwazel.internal.message.data.GameState;
 import dev.zwazel.internal.message.data.GameConfig;
 
 import java.util.Optional;
+import java.util.concurrent.BlockingQueue;
 
 public interface InternalGameWorld {
     void stop();
@@ -28,4 +29,6 @@ public interface InternalGameWorld {
     void pushIncomingMessage(MessageContainer message);
 
     void updateState(GameState newState);
+
+    BlockingQueue<MessageContainer> getIncomingMessageQueue();
 }

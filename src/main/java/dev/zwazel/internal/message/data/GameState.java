@@ -6,7 +6,8 @@ import dev.zwazel.internal.message.MessageData;
 public record GameState(Long tick) implements MessageData {
 
     @Override
-    public void applyOnReceive(InternalGameWorld internalWorld) {
+    public boolean applyOnReceive(InternalGameWorld internalWorld) {
         internalWorld.updateState(this);
+        return false;
     }
 }
