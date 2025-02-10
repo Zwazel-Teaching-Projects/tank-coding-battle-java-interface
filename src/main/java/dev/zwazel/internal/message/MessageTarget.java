@@ -1,11 +1,11 @@
-package dev.zwazel.internal.messages;
+package dev.zwazel.internal.message;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import dev.zwazel.internal.messages.targets.ClientMessageTarget;
-import dev.zwazel.internal.messages.targets.LobbyMessageTarget;
-import dev.zwazel.internal.messages.targets.ServerOnlyMessageTarget;
-import dev.zwazel.internal.messages.targets.TeamMessageTarget;
+import dev.zwazel.internal.message.target.ClientMessageTarget;
+import dev.zwazel.internal.message.target.LobbyMessageTarget;
+import dev.zwazel.internal.message.target.ServerOnlyMessageTarget;
+import dev.zwazel.internal.message.target.TeamMessageTarget;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,

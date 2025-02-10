@@ -2,14 +2,14 @@ package dev.zwazel.internal.connection;
 
 import dev.zwazel.PropertyHandler;
 import dev.zwazel.internal.InternalGameWorld;
-import dev.zwazel.internal.messages.MessageContainer;
-import dev.zwazel.internal.messages.data.FirstContact;
+import dev.zwazel.internal.message.MessageContainer;
+import dev.zwazel.internal.message.data.FirstContact;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
 
-import static dev.zwazel.internal.messages.MessageTarget.Type.SERVER_ONLY;
+import static dev.zwazel.internal.message.MessageTarget.Type.SERVER_ONLY;
 
 public class ConnectionManager {
     private static ConnectionManager instance;

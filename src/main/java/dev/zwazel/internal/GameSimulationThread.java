@@ -1,6 +1,6 @@
 package dev.zwazel.internal;
 
-import dev.zwazel.internal.messages.data.GameState;
+import dev.zwazel.internal.message.data.GameState;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor

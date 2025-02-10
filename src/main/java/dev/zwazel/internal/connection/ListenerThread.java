@@ -2,7 +2,7 @@ package dev.zwazel.internal.connection;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.zwazel.internal.InternalGameWorld;
-import dev.zwazel.internal.messages.MessageContainer;
+import dev.zwazel.internal.message.MessageContainer;
 import lombok.RequiredArgsConstructor;
 
 import java.io.DataInputStream;

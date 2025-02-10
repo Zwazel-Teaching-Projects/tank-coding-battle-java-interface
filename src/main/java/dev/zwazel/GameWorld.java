@@ -5,9 +5,9 @@ import dev.zwazel.internal.GameSimulationThread;
 import dev.zwazel.internal.InternalGameWorld;
 import dev.zwazel.internal.PublicGameWorld;
 import dev.zwazel.internal.connection.ConnectionManager;
-import dev.zwazel.internal.messages.MessageContainer;
-import dev.zwazel.internal.messages.data.GameState;
-import dev.zwazel.internal.messages.data.ServerConfig;
+import dev.zwazel.internal.message.MessageContainer;
+import dev.zwazel.internal.message.data.GameState;
+import dev.zwazel.internal.message.data.ServerConfig;
 
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;

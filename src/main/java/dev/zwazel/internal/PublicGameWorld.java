@@ -1,7 +1,9 @@
 package dev.zwazel.internal;
 
-import dev.zwazel.internal.messages.MessageContainer;
-import dev.zwazel.internal.messages.data.GameState;
+import dev.zwazel.internal.message.MessageContainer;
+import dev.zwazel.internal.message.data.GameState;
+
+import java.util.Optional;
 
 public interface PublicGameWorld {
     boolean isRunning();
@@ -11,4 +13,6 @@ public interface PublicGameWorld {
     void send(MessageContainer message);
 
     GameState getGameState();
+
+    Optional<Long> getClientIdByName(String name);
 }

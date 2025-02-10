@@ -1,6 +1,6 @@
-package dev.zwazel.internal.messages.data;
+package dev.zwazel.internal.message.data;
 
-import dev.zwazel.internal.messages.MessageData;
+import dev.zwazel.internal.message.MessageData;
 import lombok.Builder;
 
 @Builder

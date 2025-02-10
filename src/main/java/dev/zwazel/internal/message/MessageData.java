@@ -1,9 +1,9 @@
-package dev.zwazel.internal.messages;
+package dev.zwazel.internal.message;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import dev.zwazel.internal.InternalGameWorld;
-import dev.zwazel.internal.messages.data.*;
+import dev.zwazel.internal.message.data.*;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "message_type")
 @JsonSubTypes({

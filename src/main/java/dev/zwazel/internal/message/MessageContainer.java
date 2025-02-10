@@ -1,7 +1,7 @@
-package dev.zwazel.internal.messages;
+package dev.zwazel.internal.message;
 
 import dev.zwazel.internal.InternalGameWorld;
-import dev.zwazel.internal.messages.data.GameState;
+import dev.zwazel.internal.message.data.GameState;
 import lombok.*;
 
 @Data
