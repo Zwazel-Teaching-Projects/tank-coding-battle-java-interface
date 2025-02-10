@@ -29,7 +29,7 @@ public final class MessageContainer {
         }
 
         if (internalWorld.isInternalDebug()) {
-            System.out.println("Received message:\n\t " + this);
+            System.out.println("Received message (Serialized):\n\t " + this);
         }
         message.applyOnReceive(internalWorld);
     }

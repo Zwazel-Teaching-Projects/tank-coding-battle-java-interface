@@ -4,10 +4,11 @@ import dev.zwazel.bot.BotInterface;
 import dev.zwazel.internal.GameSimulationThread;
 import dev.zwazel.internal.InternalGameWorld;
 import dev.zwazel.internal.PublicGameWorld;
+import dev.zwazel.internal.client.ConnectedClientConfig;
 import dev.zwazel.internal.connection.ConnectionManager;
 import dev.zwazel.internal.message.MessageContainer;
+import dev.zwazel.internal.message.data.GameConfig;
 import dev.zwazel.internal.message.data.GameState;
-import dev.zwazel.internal.message.data.ServerConfig;
 
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
@@ -23,7 +24,7 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     private GameState gameState;
     private BotInterface bot;
     private DebugMode debug = DebugMode.NONE;
-    private ServerConfig serverConfig;
+    private GameConfig gameConfig;
 
     private volatile boolean running = false;
 
@@ -109,6 +110,21 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     }
 
     @Override
+    public Optional<ConnectedClientConfig> getConnectedClient(String name) {
+        return gameConfig != null ? gameConfig.getClientConfig(name) : Optional.empty();
+    }
+
+    @Override
+    public ConnectedClientConfig[] getConnectedClients() {
+        return gameConfig != null ? gameConfig.connectedClients() : new ConnectedClientConfig[0];
+    }
+
+    @Override
+    public GameConfig getGameConfig() {
+        return gameConfig;
+    }
+
+    @Override
     public void stop() {
         running = false;
         connection.disconnect();
@@ -121,12 +137,12 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
 
     @Override
     public Long getMyClientId() {
-        return serverConfig != null ? serverConfig.clientId() : null;
+        return gameConfig != null ? gameConfig.clientId() : null;
     }
 
     @Override
-    public void setServerConfig(ServerConfig serverConfig) {
-        this.serverConfig = serverConfig;
+    public void setGameConfig(GameConfig gameConfig) {
+        this.gameConfig = gameConfig;
     }
 
     @Override

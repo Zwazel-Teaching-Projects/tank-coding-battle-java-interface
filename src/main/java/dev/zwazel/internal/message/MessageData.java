@@ -11,7 +11,8 @@ import dev.zwazel.internal.message.data.*;
         @JsonSubTypes.Type(value = FirstContact.class),
         @JsonSubTypes.Type(value = SimpleTextMessage.class),
         @JsonSubTypes.Type(value = MessageError.class),
-        @JsonSubTypes.Type(value = ServerConfig.class),
+        @JsonSubTypes.Type(value = GameConfig.class),
+        @JsonSubTypes.Type(value = SuccessfullyJoinedLobby.class),
 })
 public interface MessageData {
     default void applyOnReceive(InternalGameWorld internalWorld) {

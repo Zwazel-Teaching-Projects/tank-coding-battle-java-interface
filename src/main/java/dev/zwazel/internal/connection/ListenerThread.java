@@ -34,6 +34,11 @@ public class ListenerThread implements Runnable {
                 byte[] data = new byte[length];
                 input.readFully(data);
 
+                if (world.isInternalDebug()) {
+                    String message = new String(data);
+                    System.out.println("Received message (JSON):\n\t" + message);
+                }
+
                 MessageContainer message = mapper.readValue(data, MessageContainer.class);
 
                 message.applyOnReceive(world);

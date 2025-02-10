@@ -1,6 +1,8 @@
 package dev.zwazel.internal;
 
+import dev.zwazel.internal.client.ConnectedClientConfig;
 import dev.zwazel.internal.message.MessageContainer;
+import dev.zwazel.internal.message.data.GameConfig;
 import dev.zwazel.internal.message.data.GameState;
 
 import java.util.Optional;
@@ -14,5 +16,11 @@ public interface PublicGameWorld {
 
     GameState getGameState();
 
-    Optional<Long> getClientIdByName(String name);
+    Long getMyClientId();
+
+    Optional<ConnectedClientConfig> getConnectedClient(String name);
+
+    ConnectedClientConfig[] getConnectedClients();
+
+    GameConfig getGameConfig();
 }
