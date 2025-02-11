@@ -1,5 +1,6 @@
 package dev.zwazel.internal.connection;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.zwazel.internal.InternalGameWorld;
 import dev.zwazel.internal.message.MessageContainer;
@@ -35,8 +36,9 @@ public class ListenerThread implements Runnable {
                 input.readFully(data);
 
                 if (world.isInternalDebug()) {
-                    String message = new String(data);
-                    System.out.println("Received message (JSON):\n\t" + message);
+                    JsonNode json = mapper.readTree(data);
+
+                    System.out.println("Received message (JSON):\n\t" + json.toPrettyString());
                 }
 
                 MessageContainer[] messages = mapper.readValue(data, MessageContainer[].class);

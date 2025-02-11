@@ -4,7 +4,7 @@ import dev.zwazel.bot.BotInterface;
 import dev.zwazel.internal.GameSimulationThread;
 import dev.zwazel.internal.InternalGameWorld;
 import dev.zwazel.internal.PublicGameWorld;
-import dev.zwazel.internal.client.ConnectedClientConfig;
+import dev.zwazel.internal.connection.client.ConnectedClientConfig;
 import dev.zwazel.internal.connection.ConnectionManager;
 import dev.zwazel.internal.message.MessageContainer;
 import dev.zwazel.internal.message.data.GameConfig;

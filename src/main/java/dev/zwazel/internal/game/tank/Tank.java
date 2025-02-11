@@ -1,4 +1,4 @@
-package dev.zwazel.internal.tank;
+package dev.zwazel.internal.game.tank;
 
 public interface Tank {
     // TODO: Define general tank methods, such as move, shoot, etc.
