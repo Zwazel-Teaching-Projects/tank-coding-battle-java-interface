@@ -15,6 +15,7 @@ public record MessageError(@JsonProperty("error_type") ErrorTypes error,
     enum ErrorTypes {
         INVALID_TARGET,
         LOBBY_MANAGEMENT_ERROR,
-        LOBBY_ALREADY_RUNNING
+        LOBBY_ALREADY_RUNNING,
+        TEAM_DOES_NOT_EXIST,
     }
 }
