@@ -1,8 +1,10 @@
 package dev.zwazel.internal.game.map;
 
+import dev.zwazel.internal.game.misc.SimplifiedRGB;
+
 import java.util.Arrays;
 
-public record MapDefinition(long width, long height,
+public record MapDefinition(long width, long height, SimplifiedRGB floorColor,
                             float[][] tiles,
                             LayerDefinition[] layers,
                             MarkerDefinition[] markers) {

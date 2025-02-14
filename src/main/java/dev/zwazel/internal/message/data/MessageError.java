@@ -17,5 +17,6 @@ public record MessageError(@JsonProperty("error_type") ErrorTypes error,
         LOBBY_MANAGEMENT_ERROR,
         LOBBY_ALREADY_RUNNING,
         TEAM_DOES_NOT_EXIST,
+        TEAM_FULL,
     }
 }
