@@ -1,5 +1,7 @@
 package dev.zwazel.internal.game.tank;
 
-public interface Tank {
+import dev.zwazel.bot.BotInterface;
+
+public interface Tank extends BotInterface {
     // TODO: Define general tank methods, such as move, shoot, etc.
 }

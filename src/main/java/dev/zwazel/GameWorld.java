@@ -4,8 +4,9 @@ import dev.zwazel.bot.BotInterface;
 import dev.zwazel.internal.GameSimulationThread;
 import dev.zwazel.internal.InternalGameWorld;
 import dev.zwazel.internal.PublicGameWorld;
-import dev.zwazel.internal.connection.client.ConnectedClientConfig;
 import dev.zwazel.internal.connection.ConnectionManager;
+import dev.zwazel.internal.connection.client.ConnectedClientConfig;
+import dev.zwazel.internal.game.tank.Tank;
 import dev.zwazel.internal.message.MessageContainer;
 import dev.zwazel.internal.message.data.GameConfig;
 import dev.zwazel.internal.message.data.GameState;
@@ -33,7 +34,7 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
         // Private constructor to prevent instantiation
     }
 
-    public static void startGame(BotInterface bot) {
+    public static void startGame(Tank bot) {
         GameWorld gameWorld = GameWorld.getInstance();
         gameWorld.bot = bot;
         gameWorld.debug = DebugMode.valueOf(gameWorld.properties.getProperty("debug.mode").toUpperCase());
