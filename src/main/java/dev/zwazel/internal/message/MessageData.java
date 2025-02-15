@@ -13,6 +13,7 @@ import dev.zwazel.internal.message.data.*;
         @JsonSubTypes.Type(value = MessageError.class),
         @JsonSubTypes.Type(value = GameConfig.class),
         @JsonSubTypes.Type(value = SuccessfullyJoinedLobby.class),
+        @JsonSubTypes.Type(value = StartGameConfig.class),
 })
 public interface MessageData {
     /**

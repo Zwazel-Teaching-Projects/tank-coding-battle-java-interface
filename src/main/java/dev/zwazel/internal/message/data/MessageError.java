@@ -16,6 +16,7 @@ public record MessageError(@JsonProperty("error_type") ErrorTypes error,
         INVALID_TARGET,
         LOBBY_MANAGEMENT_ERROR,
         LOBBY_ALREADY_RUNNING,
+        LOBBY_NOT_READY_TO_START,
         TEAM_DOES_NOT_EXIST,
         TEAM_FULL,
     }
