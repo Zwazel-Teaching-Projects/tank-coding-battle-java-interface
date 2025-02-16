@@ -1,4 +1,6 @@
 package dev.zwazel.internal.message.data;
 
-public record StartGameConfig(boolean fillEmptySlotsWithBots) {
+import dev.zwazel.internal.message.MessageData;
+
+public record StartGameConfig(boolean fillEmptySlotsWithDummies) implements MessageData {
 }
