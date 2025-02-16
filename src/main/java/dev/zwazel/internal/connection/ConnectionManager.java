@@ -57,6 +57,8 @@ public class ConnectionManager {
                             .botName(properties.getProperty("bot.name"))
                             .mapName(properties.getProperty("lobby.map.name"))
                             .teamName(properties.getProperty("lobby.team.name"))
+                            .botAssignedSpawnPoint(properties.getProperty("lobby.spawnPoint") != null ?
+                                    Long.parseLong(properties.getProperty("lobby.spawnPoint")) : null)
                             .clientType(FirstContact.ClientType.PLAYER)
                             .build()
             );
