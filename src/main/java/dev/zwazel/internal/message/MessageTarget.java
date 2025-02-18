@@ -2,10 +2,7 @@ package dev.zwazel.internal.message;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import dev.zwazel.internal.message.target.ClientMessageTarget;
-import dev.zwazel.internal.message.target.LobbyMessageTarget;
-import dev.zwazel.internal.message.target.ServerOnlyMessageTarget;
-import dev.zwazel.internal.message.target.TeamMessageTarget;
+import dev.zwazel.internal.message.target.*;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -17,6 +14,7 @@ import dev.zwazel.internal.message.target.TeamMessageTarget;
         @JsonSubTypes.Type(value = LobbyMessageTarget.class, name = "ALL_IN_LOBBY"),
         @JsonSubTypes.Type(value = ServerOnlyMessageTarget.class, name = "SERVER_ONLY"),
         @JsonSubTypes.Type(value = TeamMessageTarget.class, name = "TEAM"),
+        @JsonSubTypes.Type(value = ToSelfMessageTarget.class, name = "TO_SELF"),
 })
 public interface MessageTarget {
     enum Type {
@@ -28,7 +26,8 @@ public interface MessageTarget {
         }),
         ALL_IN_LOBBY(_ -> new LobbyMessageTarget()),
         SERVER_ONLY(_ -> new ServerOnlyMessageTarget()),
-        TEAM(_ -> new TeamMessageTarget());
+        TEAM(_ -> new TeamMessageTarget()),
+        TO_SELF(_ -> new ToSelfMessageTarget());
 
         private final MessageTargetSupplier supplier;
 

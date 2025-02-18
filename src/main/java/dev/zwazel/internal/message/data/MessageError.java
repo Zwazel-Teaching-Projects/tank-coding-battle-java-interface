@@ -3,7 +3,9 @@ package dev.zwazel.internal.message.data;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.zwazel.internal.InternalGameWorld;
 import dev.zwazel.internal.message.MessageData;
+import lombok.Builder;
 
+@Builder
 public record MessageError(@JsonProperty("error_type") ErrorTypes error,
                            @JsonProperty("error_message") String errorMessage) implements MessageData {
     @Override

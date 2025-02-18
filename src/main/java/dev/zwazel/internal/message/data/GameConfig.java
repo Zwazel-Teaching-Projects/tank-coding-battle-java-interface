@@ -6,12 +6,14 @@ import dev.zwazel.internal.game.lobby.TeamConfig;
 import dev.zwazel.internal.game.map.MapDefinition;
 import dev.zwazel.internal.game.tank.TankConfig;
 import dev.zwazel.internal.message.MessageData;
+import lombok.Builder;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+@Builder
 public record GameConfig(long tickRate, long clientId, MapDefinition mapDefinition,
                          ConnectedClientConfig[] connectedClients,
                          HashMap<String, TeamConfig> teamConfigs,

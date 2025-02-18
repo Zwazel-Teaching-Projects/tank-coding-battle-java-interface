@@ -43,9 +43,7 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
         gameWorld.bot = bot;
         gameWorld.debug = DebugMode.valueOf(gameWorld.properties.getProperty("debug.mode").toUpperCase());
 
-        Tank tank = TankFactory.createTank(tankClass);
-        tank.setWorld(gameWorld);
-        gameWorld.tank = tank;
+        gameWorld.tank = TankFactory.createTank(tankClass);
 
         gameWorld.start();
     }
