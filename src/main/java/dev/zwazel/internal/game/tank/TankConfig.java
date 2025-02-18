@@ -1,4 +1,7 @@
 package dev.zwazel.internal.game.tank;
 
-public record TankConfig(float moveSpeed, float bodyRotationSpeed, float turretRotationSpeed) {
+import dev.zwazel.internal.game.map.Vec3;
+
+public record TankConfig(float moveSpeed, float bodyRotationSpeed, float turretRotationSpeed, float maxSlope,
+                         Vec3 size) {
 }

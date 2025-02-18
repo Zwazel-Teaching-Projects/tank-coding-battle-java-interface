@@ -13,7 +13,7 @@ public class Transform {
     @JsonProperty("position")
     private final double[] positionRaw;
     @JsonIgnore
-    private final Position position;
+    private final Vec3 position;
 
     @Setter(AccessLevel.NONE)
     @Getter(AccessLevel.NONE)
@@ -28,10 +28,10 @@ public class Transform {
             @JsonProperty("rotation") double[] rotation
     ) {
         this.positionRaw = position;
-        this.position = new Position();
-        this.position.x = position[0];
-        this.position.y = position[1];
-        this.position.z = position[2];
+        this.position = new Vec3();
+        this.position.setX(position[0]);
+        this.position.setY(position[1]);
+        this.position.setZ(position[2]);
 
         this.rotationRaw = rotation;
         this.rotation = new Rotation();
@@ -41,18 +41,11 @@ public class Transform {
         this.rotation.w = rotation[3];
     }
 
-    public Transform(Position position, Rotation rotation) {
+    public Transform(Vec3 position, Rotation rotation) {
         this.position = position;
-        this.positionRaw = new double[]{position.x, position.y, position.z};
+        this.positionRaw = new double[]{position.getX(), position.getY(), position.getZ()};
         this.rotation = rotation;
         this.rotationRaw = new double[]{rotation.x, rotation.y, rotation.z, rotation.w};
-    }
-
-    @Data
-    public static class Position {
-        double x;
-        double y;
-        double z;
     }
 
     @Data
