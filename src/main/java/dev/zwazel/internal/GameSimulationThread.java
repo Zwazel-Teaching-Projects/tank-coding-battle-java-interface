@@ -40,7 +40,7 @@ public class GameSimulationThread implements Runnable {
                             -> message.getTickSent() < finalCurrentTickToProcess);
 
                     // Calling Bot
-                    internalWorld.getBot().processTick(publicWorld);
+                    internalWorld.getBot().processTick(publicWorld, publicWorld.getTank());
                 }
             }
         } catch (Exception e) {

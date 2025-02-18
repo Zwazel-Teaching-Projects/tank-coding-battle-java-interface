@@ -2,6 +2,7 @@ package dev.zwazel.internal;
 
 import dev.zwazel.bot.BotInterface;
 import dev.zwazel.internal.connection.ConnectionManager;
+import dev.zwazel.internal.game.tank.Tank;
 import dev.zwazel.internal.message.MessageContainer;
 import dev.zwazel.internal.message.data.GameState;
 import dev.zwazel.internal.message.data.GameConfig;

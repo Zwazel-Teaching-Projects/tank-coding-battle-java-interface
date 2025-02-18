@@ -1,6 +1,7 @@
 package dev.zwazel.internal;
 
 import dev.zwazel.internal.connection.client.ConnectedClientConfig;
+import dev.zwazel.internal.game.tank.Tank;
 import dev.zwazel.internal.message.MessageContainer;
 import dev.zwazel.internal.message.data.GameConfig;
 import dev.zwazel.internal.message.data.GameState;
@@ -16,6 +17,8 @@ public interface PublicGameWorld {
     void send(MessageContainer message);
 
     GameState getGameState();
+
+    Tank getTank();
 
     Long getMyClientId();
 

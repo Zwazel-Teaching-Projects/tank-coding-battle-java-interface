@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Optional;
 
+// TODO: Tank configs for all types of tanks
 public record GameConfig(long tickRate, long clientId, MapDefinition mapDefinition,
                          ConnectedClientConfig[] connectedClients,
                          HashMap<String, TeamConfig> teamConfigs) implements MessageData {

@@ -1,7 +1,21 @@
 package dev.zwazel.internal.game.tank;
 
-import dev.zwazel.bot.BotInterface;
+public interface Tank {
+    default void move(MoveDirection direction) {
+        System.out.println("Moving " + direction);
+    }
 
-public interface Tank extends BotInterface {
-    // TODO: Define general tank methods, such as move, shoot, etc.
+    default void rotate(RotationDirection direction) {
+        System.out.println("Rotating " + direction);
+    }
+
+    enum MoveDirection {
+        FORWARD,
+        BACKWARD,
+    }
+
+    enum RotationDirection {
+        CLOCKWISE,
+        COUNTER_CLOCKWISE,
+    }
 }

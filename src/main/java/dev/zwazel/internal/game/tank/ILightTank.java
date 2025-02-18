@@ -1,5 +1,5 @@
 package dev.zwazel.internal.game.tank;
 
-public interface LightTank extends Tank {
+public interface ILightTank extends Tank {
     // TODO: Define light tank specific methods (if any)
 }

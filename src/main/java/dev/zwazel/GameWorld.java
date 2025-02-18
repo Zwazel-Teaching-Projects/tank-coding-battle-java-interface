@@ -7,6 +7,7 @@ import dev.zwazel.internal.PublicGameWorld;
 import dev.zwazel.internal.connection.ConnectionManager;
 import dev.zwazel.internal.connection.client.ConnectedClientConfig;
 import dev.zwazel.internal.game.tank.Tank;
+import dev.zwazel.internal.game.tank.TankFactory;
 import dev.zwazel.internal.message.MessageContainer;
 import dev.zwazel.internal.message.data.GameConfig;
 import dev.zwazel.internal.message.data.GameState;
@@ -25,6 +26,7 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     private ConnectionManager connection;
     private GameState gameState;
     private BotInterface bot;
+    private Tank tank;
     private DebugMode debug = DebugMode.NONE;
     private GameConfig gameConfig;
 
@@ -34,10 +36,13 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
         // Private constructor to prevent instantiation
     }
 
-    public static void startGame(Tank bot) {
+    public static <T extends Tank> void startGame(BotInterface bot, Class<T> tankClass) {
         GameWorld gameWorld = GameWorld.getInstance();
         gameWorld.bot = bot;
         gameWorld.debug = DebugMode.valueOf(gameWorld.properties.getProperty("debug.mode").toUpperCase());
+
+        gameWorld.tank = TankFactory.createTank(tankClass);
+
         gameWorld.start();
     }
 
@@ -155,6 +160,11 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     @Override
     public Long getMyClientId() {
         return gameConfig != null ? gameConfig.clientId() : null;
+    }
+
+    @Override
+    public Tank getTank() {
+        return tank;
     }
 
     @Override
