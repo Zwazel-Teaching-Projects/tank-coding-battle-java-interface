@@ -14,6 +14,7 @@ public record MessageError(@JsonProperty("error_type") ErrorTypes error,
 
     enum ErrorTypes {
         INVALID_TARGET,
+        INVALID_FIRST_CONTACT,
         LOBBY_MANAGEMENT_ERROR,
         LOBBY_ALREADY_RUNNING,
         LOBBY_NOT_READY_TO_START,

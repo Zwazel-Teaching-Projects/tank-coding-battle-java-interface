@@ -6,6 +6,7 @@ import dev.zwazel.internal.InternalGameWorld;
 import dev.zwazel.internal.PublicGameWorld;
 import dev.zwazel.internal.connection.ConnectionManager;
 import dev.zwazel.internal.connection.client.ConnectedClientConfig;
+import dev.zwazel.internal.game.state.ClientState;
 import dev.zwazel.internal.game.tank.Tank;
 import dev.zwazel.internal.game.tank.TankFactory;
 import dev.zwazel.internal.message.MessageContainer;
@@ -15,7 +16,6 @@ import dev.zwazel.internal.message.data.GameState;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -43,7 +43,9 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
         gameWorld.bot = bot;
         gameWorld.debug = DebugMode.valueOf(gameWorld.properties.getProperty("debug.mode").toUpperCase());
 
-        gameWorld.tank = TankFactory.createTank(tankClass);
+        Tank tank = TankFactory.createTank(tankClass);
+        tank.setWorld(gameWorld);
+        gameWorld.tank = tank;
 
         gameWorld.start();
     }
@@ -128,13 +130,22 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     }
 
     @Override
-    public Optional<ConnectedClientConfig> getConnectedClient(String name) {
-        return gameConfig != null ? gameConfig.getClientConfig(name) : Optional.empty();
+    public ClientState getMyState() {
+        return gameState.clientStates().get(getMyClientId());
     }
 
     @Override
-    public ConnectedClientConfig[] getConnectedClients() {
-        return gameConfig != null ? gameConfig.connectedClients() : new ConnectedClientConfig[0];
+    public ClientState getClientState(Long clientId) {
+        return gameState.clientStates().get(clientId);
+    }
+
+    @Override
+    public List<ClientState> getTeamClientStates(String teamName, Long excludeClientId) {
+        List<ConnectedClientConfig> teamMembers = gameConfig.getTeamMembers(teamName, excludeClientId);
+
+        return teamMembers.stream()
+                .map(clientConfig -> gameState.clientStates().get(clientConfig.clientId()))
+                .toList();
     }
 
     @Override
@@ -148,7 +159,7 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     }
 
     @Override
-    public List<MessageContainer> getMessages() {
+    public List<MessageContainer> getIncomingMessages() {
         return List.copyOf(incomingMessages);
     }
 

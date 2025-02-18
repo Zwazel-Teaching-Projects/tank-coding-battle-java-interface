@@ -2,6 +2,7 @@ package dev.zwazel.internal.connection;
 
 import dev.zwazel.PropertyHandler;
 import dev.zwazel.internal.InternalGameWorld;
+import dev.zwazel.internal.PublicGameWorld;
 import dev.zwazel.internal.message.MessageContainer;
 import dev.zwazel.internal.message.data.FirstContact;
 import lombok.Getter;
@@ -47,6 +48,7 @@ public class ConnectionManager {
             Thread listenerThread = new Thread(new ListenerThread(this, world, new DataInputStream(socket.getInputStream())), "Socket-Listener");
             listenerThread.start();
 
+            PublicGameWorld publicGameWorld = this.world.getPublicGameWorld();
             // Sending first contact message
             MessageContainer message = new MessageContainer(
                     SERVER_ONLY.get(),
@@ -58,9 +60,10 @@ public class ConnectionManager {
                             .botAssignedSpawnPoint(properties.getProperty("lobby.spawnPoint") != null ?
                                     Long.parseLong(properties.getProperty("lobby.spawnPoint")) : null)
                             .clientType(FirstContact.ClientType.PLAYER)
+                            .tankType(publicGameWorld.getTank().getTankType())
                             .build()
             );
-            world.getPublicGameWorld().send(message);
+            publicGameWorld.send(message);
 
             return true;
         } catch (Exception e) {
@@ -80,9 +83,5 @@ public class ConnectionManager {
             System.err.println("Error disconnecting from socket");
             e.printStackTrace();
         }
-    }
-
-    public boolean isConnected() {
-        return socket != null && socket.isConnected();
     }
 }

@@ -5,7 +5,7 @@ import lombok.Builder;
 
 @Builder
 public record FirstContact(String botName, String lobbyName, String mapName, String teamName,
-                           ClientType clientType, Long botAssignedSpawnPoint) implements MessageData {
+                           ClientType clientType, Long botAssignedSpawnPoint, String tankType) implements MessageData {
     public enum ClientType {
         PLAYER,
         SPECTATOR
