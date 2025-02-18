@@ -2,12 +2,10 @@ package dev.zwazel.internal;
 
 import dev.zwazel.bot.BotInterface;
 import dev.zwazel.internal.connection.ConnectionManager;
-import dev.zwazel.internal.game.tank.Tank;
 import dev.zwazel.internal.message.MessageContainer;
-import dev.zwazel.internal.message.data.GameState;
 import dev.zwazel.internal.message.data.GameConfig;
+import dev.zwazel.internal.message.data.GameState;
 
-import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 
 public interface InternalGameWorld {
@@ -25,11 +23,11 @@ public interface InternalGameWorld {
 
     BotInterface getBot();
 
-    Optional<MessageContainer> pollOutgoingMessage();
-
     void pushIncomingMessage(MessageContainer message);
 
     void updateState(GameState newState);
 
     BlockingQueue<MessageContainer> getIncomingMessageQueue();
+
+    BlockingQueue<MessageContainer> getOutgoingMessageQueue();
 }

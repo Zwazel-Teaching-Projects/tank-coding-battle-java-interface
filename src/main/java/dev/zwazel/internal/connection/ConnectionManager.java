@@ -4,9 +4,9 @@ import dev.zwazel.PropertyHandler;
 import dev.zwazel.internal.InternalGameWorld;
 import dev.zwazel.internal.message.MessageContainer;
 import dev.zwazel.internal.message.data.FirstContact;
+import lombok.Getter;
 
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.net.Socket;
 
 import static dev.zwazel.internal.message.MessageTarget.Type.SERVER_ONLY;
@@ -16,6 +16,7 @@ public class ConnectionManager {
     private final PropertyHandler properties = PropertyHandler.getInstance();
 
     private InternalGameWorld world;
+    @Getter
     private Socket socket;
 
     private ConnectionManager() {
@@ -45,9 +46,6 @@ public class ConnectionManager {
 
             Thread listenerThread = new Thread(new ListenerThread(this, world, new DataInputStream(socket.getInputStream())), "Socket-Listener");
             listenerThread.start();
-
-            Thread writingThread = new Thread(new WritingThread(this, world, new DataOutputStream(socket.getOutputStream())), "Socket-Writer");
-            writingThread.start();
 
             // Sending first contact message
             MessageContainer message = new MessageContainer(
@@ -87,5 +85,4 @@ public class ConnectionManager {
     public boolean isConnected() {
         return socket != null && socket.isConnected();
     }
-
 }

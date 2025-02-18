@@ -12,6 +12,8 @@ import dev.zwazel.internal.message.MessageContainer;
 import dev.zwazel.internal.message.data.GameConfig;
 import dev.zwazel.internal.message.data.GameState;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
@@ -71,14 +73,13 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
             System.err.println("Failed to connect to " + serverIp + ":" + serverPort);
             running = false;
         } else {
-            Thread simulationThread = new Thread(new GameSimulationThread(instance), "Game-Simulation");
-            simulationThread.start();
+            try {
+                Thread simulationThread = new Thread(new GameSimulationThread(instance, new DataOutputStream(connection.getSocket().getOutputStream())), "Game-Simulation");
+                simulationThread.start();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
-    }
-
-    @Override
-    public Optional<MessageContainer> pollOutgoingMessage() {
-        return Optional.ofNullable(outgoingMessages.poll());
     }
 
     @Override
@@ -94,6 +95,11 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     @Override
     public BlockingQueue<MessageContainer> getIncomingMessageQueue() {
         return incomingMessages;
+    }
+
+    @Override
+    public BlockingQueue<MessageContainer> getOutgoingMessageQueue() {
+        return outgoingMessages;
     }
 
     @Override

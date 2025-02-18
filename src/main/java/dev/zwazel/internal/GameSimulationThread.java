@@ -1,14 +1,24 @@
 package dev.zwazel.internal;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.zwazel.internal.message.MessageContainer;
 import dev.zwazel.internal.message.data.GameConfig;
 import dev.zwazel.internal.message.data.GameState;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Optional;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.BlockingQueue;
 
 @RequiredArgsConstructor
 public class GameSimulationThread implements Runnable {
     private final InternalGameWorld internalWorld;
+    private final DataOutputStream output;
+    private final ObjectMapper objectMapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
     private boolean ranSetup = false;
 
     @Override
@@ -42,11 +52,41 @@ public class GameSimulationThread implements Runnable {
                     // Calling Bot
                     internalWorld.getBot().processTick(publicWorld, publicWorld.getTank());
                 }
+
+                sendTickMessages();
             }
         } catch (Exception e) {
             System.err.println("Error processing game simulation");
             internalWorld.stop();
             e.printStackTrace();
         }
+    }
+
+    private void sendTickMessages() throws IOException {
+        BlockingQueue<MessageContainer> messages = internalWorld.getOutgoingMessageQueue();
+        List<MessageContainer> messageList = new ArrayList<>();
+        messages.drainTo(messageList);
+
+        if (messageList.isEmpty()) {
+            return;
+        }
+
+        messageList.forEach(message -> message.applyBeforeSend(internalWorld));
+
+        String json = objectMapper.writeValueAsString(messageList);
+
+        if (internalWorld.isInternalDebug()) {
+            System.out.println("Sending message:\n\t" + json);
+        }
+
+        byte[] jsonBytes = json.getBytes(StandardCharsets.UTF_8);
+
+        // Send the length prefix
+        output.writeInt(jsonBytes.length);
+
+        // Write the message
+        output.write(jsonBytes);
+
+        output.flush();
     }
 }
