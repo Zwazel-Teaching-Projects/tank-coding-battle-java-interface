@@ -44,6 +44,14 @@ public class Vec3 {
         return new Vec3(x / mag, y / mag, z / mag);
     }
 
+    public Vec3 normalize_or_zero() {
+        double mag = magnitude();
+        if (mag == 0) {
+            return Vec3.ZERO;
+        }
+        return new Vec3(x / mag, y / mag, z / mag);
+    }
+
     public double getAngle() {
         return Math.atan2(z, x);
     }
