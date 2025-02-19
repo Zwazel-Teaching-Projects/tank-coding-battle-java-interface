@@ -5,5 +5,5 @@ import dev.zwazel.internal.message.MessageData;
 import lombok.Builder;
 
 @Builder
-public record RotateTankBodyCommand(Tank.RotationDirection direction, float angle) implements MessageData {
+public record RotateTankBodyCommand(Tank.RotationDirection direction, double angle) implements MessageData {
 }

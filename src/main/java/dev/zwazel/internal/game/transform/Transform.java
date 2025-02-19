@@ -1,6 +1,7 @@
 package dev.zwazel.internal.game.transform;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,7 +14,8 @@ public class Transform {
     private final Quaternion rotation;
 
     @JsonCreator
-    public Transform(double[] position, double[] rotation) {
+    public Transform(@JsonProperty("position") double[] position,
+                     @JsonProperty("rotation") double[] rotation) {
         this.position = new Vec3();
         this.position.setX(position[0]);
         this.position.setY(position[1]);
