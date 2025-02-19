@@ -13,8 +13,6 @@ public interface InternalGameWorld {
 
     boolean isInternalDebug();
 
-    Long getMyClientId();
-
     void setGameConfig(GameConfig serverConfig);
 
     PublicGameWorld getPublicGameWorld();

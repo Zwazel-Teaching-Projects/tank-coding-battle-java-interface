@@ -5,8 +5,6 @@ import dev.zwazel.internal.GameSimulationThread;
 import dev.zwazel.internal.InternalGameWorld;
 import dev.zwazel.internal.PublicGameWorld;
 import dev.zwazel.internal.connection.ConnectionManager;
-import dev.zwazel.internal.connection.client.ConnectedClientConfig;
-import dev.zwazel.internal.game.state.ClientState;
 import dev.zwazel.internal.game.tank.Tank;
 import dev.zwazel.internal.game.tank.TankFactory;
 import dev.zwazel.internal.message.MessageContainer;
@@ -128,25 +126,6 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     }
 
     @Override
-    public ClientState getMyState() {
-        return gameState.clientStates().get(getMyClientId());
-    }
-
-    @Override
-    public ClientState getClientState(Long clientId) {
-        return gameState.clientStates().get(clientId);
-    }
-
-    @Override
-    public List<ClientState> getTeamClientStates(String teamName, Long excludeClientId) {
-        List<ConnectedClientConfig> teamMembers = gameConfig.getTeamMembers(teamName, excludeClientId);
-
-        return teamMembers.stream()
-                .map(clientConfig -> gameState.clientStates().get(clientConfig.clientId()))
-                .toList();
-    }
-
-    @Override
     public GameConfig getGameConfig() {
         return gameConfig;
     }
@@ -170,11 +149,6 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     @Override
     public boolean isInternalDebug() {
         return debug == DebugMode.INTERNAL;
-    }
-
-    @Override
-    public Long getMyClientId() {
-        return gameConfig != null ? gameConfig.clientId() : null;
     }
 
     @Override

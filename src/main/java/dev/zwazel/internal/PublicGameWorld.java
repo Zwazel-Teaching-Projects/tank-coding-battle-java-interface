@@ -1,5 +1,6 @@
 package dev.zwazel.internal;
 
+import dev.zwazel.internal.connection.client.ConnectedClientConfig;
 import dev.zwazel.internal.game.state.ClientState;
 import dev.zwazel.internal.game.tank.Tank;
 import dev.zwazel.internal.message.MessageContainer;
@@ -7,6 +8,7 @@ import dev.zwazel.internal.message.data.GameConfig;
 import dev.zwazel.internal.message.data.GameState;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PublicGameWorld {
     /**
@@ -42,7 +44,9 @@ public interface PublicGameWorld {
      *
      * @return my current state
      */
-    ClientState getMyState();
+    default ClientState getMyState() {
+        return getClientState(getGameConfig().clientId());
+    }
 
     /**
      * Get the state of a specific client.
@@ -50,7 +54,31 @@ public interface PublicGameWorld {
      * @param clientId the client id
      * @return the client state
      */
-    ClientState getClientState(Long clientId);
+    default ClientState getClientState(Long clientId) {
+        return getGameState().clientStates().get(clientId);
+    }
+
+    default ClientState getClientState(ConnectedClientConfig clientConfig) {
+        return getClientState(clientConfig.clientId());
+    }
+
+    default Optional<ClientState> getClientState(String clientName) {
+        Optional<ConnectedClientConfig> clientConfig = getConnectedClientConfig(clientName);
+
+        return clientConfig.map(this::getClientState);
+    }
+
+    default Optional<ConnectedClientConfig> getConnectedClientConfig(Long clientId) {
+        return getGameConfig().getClientConfig(clientId);
+    }
+
+    default Optional<ConnectedClientConfig> getConnectedClientConfig(String clientName) {
+        return getGameConfig().getClientConfig(clientName);
+    }
+
+    default Optional<ConnectedClientConfig> getConnectedClientConfig(ClientState clientState) {
+        return getConnectedClientConfig(clientState.id());
+    }
 
     /**
      * Get the client states of all clients in a team (could include the client itself, if it is part of the team).
@@ -69,7 +97,13 @@ public interface PublicGameWorld {
      * @param excludeClientId the client id to exclude
      * @return the client states of all clients in the team
      */
-    List<ClientState> getTeamClientStates(String teamName, Long excludeClientId);
+    default List<ClientState> getTeamClientStates(String teamName, Long excludeClientId) {
+        List<ConnectedClientConfig> teamMembers = getGameConfig().getTeamMembers(teamName, excludeClientId);
+
+        return teamMembers.stream()
+                .map(clientConfig -> getGameState().clientStates().get(clientConfig.clientId()))
+                .toList();
+    }
 
     /**
      * Get the tank instance of the client.
