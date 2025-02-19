@@ -5,5 +5,5 @@ import dev.zwazel.internal.message.MessageData;
 import lombok.Builder;
 
 @Builder
-public record MoveTankCommand(Tank.MoveDirection direction, float distance) implements MessageData {
+public record MoveTankCommand(Tank.MoveDirection direction, double distance) implements MessageData {
 }

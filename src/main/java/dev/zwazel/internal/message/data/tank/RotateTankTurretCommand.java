@@ -5,5 +5,6 @@ import dev.zwazel.internal.message.MessageData;
 import lombok.Builder;
 
 @Builder
-public record RotateTankTurretCommand(Tank.RotationDirection direction, double angle) implements MessageData {
+public record RotateTankTurretCommand(Tank.RotationDirection direction, double yawAngle,
+                                      double pitchAngle) implements MessageData {
 }

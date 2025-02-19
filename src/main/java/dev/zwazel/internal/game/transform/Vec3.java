@@ -35,6 +35,10 @@ public class Vec3 {
         return new Vec3(x - other.x, y - other.y, z - other.z);
     }
 
+    public Vec3 add(Vec3 other) {
+        return new Vec3(x + other.x, y + other.y, z + other.z);
+    }
+
     public double magnitude() {
         return Math.sqrt(x * x + y * y + z * z);
     }

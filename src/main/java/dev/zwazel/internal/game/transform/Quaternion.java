@@ -29,11 +29,20 @@ public class Quaternion {
         this.w = values[3];
     }
 
-    public Vec3 rotateVector(Vec3 v) {
-        Quaternion q = new Quaternion(v.getX(), v.getY(), v.getZ(), 0);
-        Quaternion result = this.multiply(q).multiply(this.inverse());
-        return new Vec3(result.x, result.y, result.z);
+    public Vec3 rotate(Vec3 v) {
+        // Convert the vector into a quaternion with zero scalar part
+        Quaternion vQuat = new Quaternion(v.getX(), v.getY(), v.getZ(), 0);
+
+        // Conjugate of the quaternion (inverse if unit quaternion)
+        Quaternion conjugate = this.conjugate();
+
+        // The rotated vector is: this * vQuat * this^-1
+        Quaternion resultQuat = this.multiply(vQuat).multiply(conjugate);
+
+        // The vector part of the result holds the rotated vector
+        return new Vec3(resultQuat.getX(), resultQuat.getY(), resultQuat.getZ());
     }
+
 
     public Quaternion multiply(Quaternion other) {
         double x = this.w * other.x + this.x * other.w + this.y * other.z - this.z * other.y;
@@ -49,15 +58,23 @@ public class Quaternion {
     }
 
     public Vec3 getForward() {
-        return rotateVector(new Vec3(0, 0, 1));
+        return rotate(new Vec3(0, 0, 1));
     }
 
     public Vec3 getUp() {
-        return rotateVector(new Vec3(0, 1, 0));
+        return rotate(new Vec3(0, 1, 0));
     }
 
     public Vec3 getRight() {
         // In game space, “right” is –x.
-        return rotateVector(new Vec3(-1, 0, 0));
+        return rotate(new Vec3(-1, 0, 0));
+    }
+
+    public double getPitch() {
+        return Math.asin(-2 * (x * z - w * y));
+    }
+
+    public Quaternion conjugate() {
+        return new Quaternion(-x, -y, -z, w);
     }
 }

@@ -27,4 +27,16 @@ public class Transform {
         this.rotation.setZ(rotation[2]);
         this.rotation.setW(rotation[3]);
     }
+
+    public Transform multiply(Transform child) {
+    // Combine rotations: parent's rotation then child's rotation
+    Quaternion newRotation = this.rotation.multiply(child.rotation);
+
+    // Rotate the child's position by the parent's rotation and then add the parent's position.
+    Vec3 rotatedChildPosition = this.rotation.rotate(child.position);
+    Vec3 newPosition = this.position.add(rotatedChildPosition);
+
+    return new Transform(newPosition, newRotation);
+}
+
 }
