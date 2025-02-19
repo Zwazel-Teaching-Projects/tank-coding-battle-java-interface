@@ -8,11 +8,6 @@ import lombok.*;
 @Data
 @NoArgsConstructor(force = true)
 public class Transform {
-    @Setter(AccessLevel.NONE)
-    @Getter(AccessLevel.NONE)
-    @JsonProperty("position")
-    private final double[] positionRaw;
-    @JsonIgnore
     private final Vec3 position;
 
     @Setter(AccessLevel.NONE)
@@ -27,7 +22,6 @@ public class Transform {
             @JsonProperty("position") double[] position,
             @JsonProperty("rotation") double[] rotation
     ) {
-        this.positionRaw = position;
         this.position = new Vec3();
         this.position.setX(position[0]);
         this.position.setY(position[1]);
@@ -43,7 +37,6 @@ public class Transform {
 
     public Transform(Vec3 position, Rotation rotation) {
         this.position = position;
-        this.positionRaw = new double[]{position.getX(), position.getY(), position.getZ()};
         this.rotation = rotation;
         this.rotationRaw = new double[]{rotation.x, rotation.y, rotation.z, rotation.w};
     }
