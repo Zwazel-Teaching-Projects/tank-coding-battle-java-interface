@@ -7,9 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * This Quaternion class uses standard math internally but converts to/from game–space:
- * Game: forward = +z, up = +y, right = –x.
- * (In standard math: forward = +z, up = +y, right = +x.)
+ * Game (right-handed coordinate system): forward = +z, up = +y, right = –x.
  */
 @Data
 @NoArgsConstructor
@@ -29,6 +27,12 @@ public class Quaternion {
         this.w = values[3];
     }
 
+    public static Quaternion fromAxisAngle(double x, double y, double z, double angle) {
+        double halfAngle = angle / 2;
+        double sinHalfAngle = Math.sin(halfAngle);
+        return new Quaternion(x * sinHalfAngle, y * sinHalfAngle, z * sinHalfAngle, Math.cos(halfAngle));
+    }
+
     public Vec3 rotate(Vec3 v) {
         // Convert the vector into a quaternion with zero scalar part
         Quaternion vQuat = new Quaternion(v.getX(), v.getY(), v.getZ(), 0);
@@ -42,7 +46,6 @@ public class Quaternion {
         // The vector part of the result holds the rotated vector
         return new Vec3(resultQuat.getX(), resultQuat.getY(), resultQuat.getZ());
     }
-
 
     public Quaternion multiply(Quaternion other) {
         double x = this.w * other.x + this.x * other.w + this.y * other.z - this.z * other.y;

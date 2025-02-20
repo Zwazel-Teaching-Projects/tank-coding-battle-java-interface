@@ -44,5 +44,11 @@ public final class MessageContainer {
         if (state != null) {
             this.tickSent = state.tick();
         }
+
+        message.applyBeforeSend(internalWorld);
+    }
+
+    public void applyOnAddingToQueue(InternalGameWorld internalWorld) {
+        message.applyOnAddingToQueue(internalWorld);
     }
 }

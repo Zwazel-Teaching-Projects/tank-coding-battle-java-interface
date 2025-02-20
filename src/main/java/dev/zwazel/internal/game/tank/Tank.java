@@ -39,10 +39,11 @@ public interface Tank {
         TankConfig config = getConfig(world);
         // If distance > config.moveSpeed, move only config.moveSpeed
         distance = Math.min(distance, config.moveSpeed());
+        distance *= direction.multiplier;
 
         MessageContainer message = new MessageContainer(
                 MessageTarget.Type.TO_SELF.get(),
-                MoveTankCommand.builder().direction(direction).distance(distance).build()
+                MoveTankCommand.builder().distance(distance).build()
         );
         world.send(message);
     }
@@ -61,8 +62,8 @@ public interface Tank {
      */
     default void moveTowards(PublicGameWorld world, MoveDirection moveDirection, Vec3 targetPosition, boolean simultaneous) {
         // Fetch the tank's current state and position.
-        Transform currentTransform = world.getMyState().transformBody();
-        Vec3 currentPosition = currentTransform.getPosition();
+        Transform currentTransform = world.getMyPredictedState().transformBody();
+        Vec3 currentPosition = currentTransform.getTranslation();
         Quaternion currentRotation = currentTransform.getRotation();
         Vec3 currentForward = currentRotation.getForward();
         double currentYaw = currentForward.getAngle();
@@ -143,10 +144,11 @@ public interface Tank {
         TankConfig config = getConfig(world);
         // If angle > config.rotationSpeed, rotate only config.rotationSpeed
         angle = Math.min(angle, config.bodyRotationSpeed());
+        angle *= direction.multiplier;
 
         MessageContainer message = new MessageContainer(
                 MessageTarget.Type.TO_SELF.get(),
-                RotateTankBodyCommand.builder().direction(direction).angle(angle).build()
+                RotateTankBodyCommand.builder().angle(angle).build()
         );
 
         world.send(message);
@@ -162,8 +164,8 @@ public interface Tank {
      */
     default double rotateBodyTowards(PublicGameWorld world, Vec3 targetPosition) {
         // Get the current tank transform.
-        Transform currentTransform = world.getMyState().transformBody();
-        Vec3 currentPosition = currentTransform.getPosition();
+        Transform currentTransform = world.getMyPredictedState().transformBody();
+        Vec3 currentPosition = currentTransform.getTranslation();
         Quaternion currentRotation = currentTransform.getRotation();
 
         // Get the current forward vector in game space.
@@ -190,15 +192,16 @@ public interface Tank {
         return rotateBody(world, direction, angleToRotate);
     }
 
-    default void rotateTurret(PublicGameWorld world, RotationDirection yawRotationDirection) {
+    default void rotateTurret(PublicGameWorld world, RotationDirection turretYawDirection) {
         TankConfig config = getConfig(world);
-        rotateTurret(world, yawRotationDirection, config.turretYawRotationSpeed(), config.turretPitchRotationSpeed());
+        rotateTurret(world, turretYawDirection, config.turretYawRotationSpeed(), config.turretPitchRotationSpeed());
     }
 
-    default void rotateTurret(PublicGameWorld world, RotationDirection yawRotationDirection, double yawAngle, double pitchAngle) {
+    default void rotateTurret(PublicGameWorld world, RotationDirection turretYawDirection, double yawAngle, double pitchAngle) {
         TankConfig config = getConfig(world);
         // If yawAngle > config.turretYawRotationSpeed, rotate only config.turretYawRotationSpeed
         yawAngle = Math.min(yawAngle, config.turretYawRotationSpeed());
+        yawAngle *= turretYawDirection.multiplier;
         // If pitchAngle > config.turretPitchSpeed, rotate only config.turretPitchSpeed
         pitchAngle = Math.max(-config.turretPitchRotationSpeed(),
                 Math.min(pitchAngle, config.turretPitchRotationSpeed()));
@@ -206,7 +209,6 @@ public interface Tank {
         MessageContainer message = new MessageContainer(
                 MessageTarget.Type.TO_SELF.get(),
                 RotateTankTurretCommand.builder()
-                        .direction(yawRotationDirection)
                         .yawAngle(yawAngle)
                         .pitchAngle(pitchAngle)
                         .build()
@@ -215,39 +217,25 @@ public interface Tank {
     }
 
     default void rotateTurretTowards(PublicGameWorld world, Vec3 targetPosition) {
-        // 1. Obtain the body (parent) transform and the turret's local transform
-        //    (Your actual method calls may differ, adapt as needed.)
-        Transform bodyTransform = world.getMyState().transformBody();
-        Transform turretLocalTransform = world.getMyState().transformTurret(); // If this is local, read on!
+        Transform bodyTransform = world.getMyPredictedState().transformBody();
+        Transform turretLocalTransform = world.getMyPredictedState().transformTurret();
 
-        // 2. Compute the turret's global transform by combining body and turret transforms
         Transform turretGlobalTransform = bodyTransform.multiply(turretLocalTransform);
 
-        // 3. Extract global position and orientation from the combined transform
-        Vec3 turretGlobalPosition = turretGlobalTransform.getPosition();
+        Vec3 turretGlobalPosition = turretGlobalTransform.getTranslation();
         Quaternion turretGlobalRotation = turretGlobalTransform.getRotation();
 
-        // 4. Determine the current forward vector (in global space) from the turret's rotation
-        //    Check which axis your model uses for "forward"—Z, -Z, or maybe X. This is a common pitfall.
-        //    Suppose getForward() returns the turret's +Z direction in right-handed coordinates:
         Vec3 currentForward = turretGlobalRotation.getForward();
 
-        // 5. Compute current yaw and pitch from the global forward vector
-        //    (Assuming yaw is around the Y axis, pitch is from the horizontal plane.)
         double currentYaw = Math.atan2(currentForward.getZ(), currentForward.getX());
-        // Alternatively, you might use .getAngle() from your vector class, but watch out for which axis is which.
 
         double horizontalMag = Math.sqrt(currentForward.getX() * currentForward.getX()
                 + currentForward.getZ() * currentForward.getZ());
         double currentPitch = Math.atan2(currentForward.getY(), horizontalMag);
 
-        // 6. Compute the global vector from the turret to the target
         Vec3 toTarget = targetPosition.subtract(turretGlobalPosition);
 
-        // 7. Determine desired yaw by projecting to the XZ plane (right-handed)
-        //    Normalizing to avoid weird infinite angles if the distance is near zero
         Vec3 desiredDirection = new Vec3(toTarget.getX(), 0, toTarget.getZ()).normalize_or_zero();
-        // A typical angle approach in a right-handed system is atan2(z, x):
         double desiredYaw = Math.atan2(desiredDirection.getZ(), desiredDirection.getX());
 
         // 8. Determine desired pitch by considering vertical difference vs. horizontal distance
@@ -255,34 +243,39 @@ public interface Tank {
                 + toTarget.getZ() * toTarget.getZ());
         double desiredPitch = Math.atan2(toTarget.getY(), targetHorizontal);
 
-        // 9. Compute the smallest signed yaw difference in a right-handed system
-        //    Here we do the typical "atan2(sin delta, cos delta)" trick:
         double rawDeltaYaw = desiredYaw - currentYaw;
         double deltaYaw = Math.atan2(Math.sin(rawDeltaYaw), Math.cos(rawDeltaYaw));
 
-        // Decide rotation direction. Typically, in a right-handed system,
-        // positive angles are counter-clockwise when viewed from above.
         RotationDirection yawDirection = (deltaYaw >= 0)
                 ? RotationDirection.CLOCKWISE
                 : RotationDirection.COUNTER_CLOCKWISE;
-
-        // The magnitude for yaw
+        
         double yawAngle = Math.abs(deltaYaw);
 
-        // 10. Compute pitch difference. Confirm the sign convention your engine uses.
-        // If positive pitch is “aim upward,” you might do (desiredPitch - currentPitch).
         double pitchDelta = currentPitch - desiredPitch;
 
         rotateTurret(world, yawDirection, yawAngle, pitchDelta);
     }
 
-    enum MoveDirection {
-        FORWARD,
-        BACKWARD,
+    enum RotationDirection {
+        CLOCKWISE(-1.0),
+        COUNTER_CLOCKWISE(1.0);
+
+        final double multiplier;
+
+        RotationDirection(double multiplier) {
+            this.multiplier = multiplier;
+        }
     }
 
-    enum RotationDirection {
-        CLOCKWISE,
-        COUNTER_CLOCKWISE,
+    enum MoveDirection {
+        FORWARD(1.0),
+        BACKWARD(-1.0);
+
+        final double multiplier;
+
+        MoveDirection(double multiplier) {
+            this.multiplier = multiplier;
+        }
     }
 }

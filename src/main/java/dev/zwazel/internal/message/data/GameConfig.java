@@ -22,7 +22,9 @@ public record GameConfig(long tickRate, long clientId, MapDefinition mapDefiniti
     public boolean applyOnReceive(InternalGameWorld internalWorld) {
         internalWorld.setGameConfig(this);
 
-        System.out.println("Received Game Config from Server:\n\t" + this);
+        if (internalWorld.isInternalDebug()) {
+            System.out.println("Received Game Config from Server:\n\t" + this);
+        }
 
         return false;
     }

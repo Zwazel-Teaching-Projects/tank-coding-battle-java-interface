@@ -25,10 +25,25 @@ public interface MessageData {
     /**
      * Applies to the world when received
      *
-     * @param world
+     * @param world the world
      * @return if true, we add it to the Input Queue, so Bots can read them. If false, we don't.
      */
     default boolean applyOnReceive(InternalGameWorld world) {
         return true;
+    }
+
+    /**
+     * Applies to the world before sending
+     *
+     * @param world the world
+     */
+    default void applyBeforeSend(InternalGameWorld world) {
+    }
+
+    /**
+     * Applies to the world when added to the queue
+     * @param world
+     */
+    default void applyOnAddingToQueue(InternalGameWorld world) {
     }
 }

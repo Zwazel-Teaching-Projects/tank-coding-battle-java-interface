@@ -48,6 +48,8 @@ public interface PublicGameWorld {
         return getClientState(getGameConfig().clientId());
     }
 
+    ClientState getMyPredictedState();
+
     /**
      * Get the state of a specific client.
      *

@@ -39,6 +39,14 @@ public class Vec3 {
         return new Vec3(x + other.x, y + other.y, z + other.z);
     }
 
+    public Vec3 multiply(Vec3 other) {
+        return new Vec3(x * other.x, y * other.y, z * other.z);
+    }
+
+    public Vec3 multiply(double scalar) {
+        return new Vec3(x * scalar, y * scalar, z * scalar);
+    }
+
     public double magnitude() {
         return Math.sqrt(x * x + y * y + z * z);
     }
@@ -62,5 +70,9 @@ public class Vec3 {
 
     public double distance(Vec3 other) {
         return subtract(other).magnitude();
+    }
+
+    public Vec3 ro(Quaternion q) {
+        return q.rotate(this);
     }
 }

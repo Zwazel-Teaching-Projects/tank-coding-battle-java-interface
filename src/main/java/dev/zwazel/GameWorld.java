@@ -5,6 +5,7 @@ import dev.zwazel.internal.GameSimulationThread;
 import dev.zwazel.internal.InternalGameWorld;
 import dev.zwazel.internal.PublicGameWorld;
 import dev.zwazel.internal.connection.ConnectionManager;
+import dev.zwazel.internal.game.state.ClientState;
 import dev.zwazel.internal.game.tank.Tank;
 import dev.zwazel.internal.game.tank.TankFactory;
 import dev.zwazel.internal.message.MessageContainer;
@@ -29,6 +30,12 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     private Tank tank;
     private DebugMode debug = DebugMode.NONE;
     private GameConfig gameConfig;
+    /**
+     * The predicted state of the client.
+     * Resets every tick.
+     * Every move command locally executed applies its predicted effect to this state.
+     */
+    private ClientState myPredictedState;
 
     private volatile boolean running = false;
 
@@ -88,6 +95,13 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     @Override
     public void updateState(GameState newState) {
         gameState = newState;
+
+        updatePredictedState(getMyState());
+    }
+
+    @Override
+    public void updatePredictedState(ClientState newState) {
+        myPredictedState = newState;
     }
 
     @Override
@@ -117,12 +131,18 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
           - we need to validate the messages and check for duplicates and other stuff
           - Rather use a set?
         */
+        message.applyOnAddingToQueue(this);
         outgoingMessages.add(message);
     }
 
     @Override
     public GameState getGameState() {
         return gameState;
+    }
+
+    @Override
+    public ClientState getMyPredictedState() {
+        return myPredictedState;
     }
 
     @Override
