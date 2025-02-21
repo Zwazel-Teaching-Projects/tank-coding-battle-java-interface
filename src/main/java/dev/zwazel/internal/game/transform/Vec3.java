@@ -23,6 +23,9 @@ public class Vec3 {
     private double z;
 
     public static final Vec3 ZERO = new Vec3(0, 0, 0);
+    public static final Vec3 X = new Vec3(1, 0, 0);
+    public static final Vec3 Y = new Vec3(0, 1, 0);
+    public static final Vec3 Z = new Vec3(0, 0, 1);
 
     @JsonCreator
     public Vec3(double[] values) {
@@ -70,9 +73,5 @@ public class Vec3 {
 
     public double distance(Vec3 other) {
         return subtract(other).magnitude();
-    }
-
-    public Vec3 ro(Quaternion q) {
-        return q.rotate(this);
     }
 }

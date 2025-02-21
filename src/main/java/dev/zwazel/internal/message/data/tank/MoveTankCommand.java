@@ -14,7 +14,7 @@ public record MoveTankCommand(double distance) implements MessageData {
         // Apply predicted movement to the predicted state
         ClientState predictedState = world.getPublicGameWorld().getMyPredictedState();
         Transform currentTransform = predictedState.transformBody();
-        Vec3 myForward = currentTransform.getForward();
+        Vec3 myForward = currentTransform.forward();
 
         // Calculate the new position
         Vec3 newPosition = currentTransform.getTranslation().add(myForward.multiply(distance));

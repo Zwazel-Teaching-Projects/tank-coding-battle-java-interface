@@ -40,20 +40,54 @@ public class Transform {
         this(translation, rotation, new Vec3(1, 1, 1));
     }
 
-    public Transform multiply(Transform child) {
-        // First, scale the child's translation by the parent's scale
-        Vec3 scaledChildTranslation = child.getTranslation().multiply(this.scale);
-        // Then rotate and translate
-        Vec3 newTranslation = this.rotation.rotate(scaledChildTranslation).add(this.translation);
-        // Compose rotations
-        Quaternion newRotation = this.rotation.multiply(child.getRotation());
-        // Compose scales element-wise
-        Vec3 newScale = this.scale.multiply(child.getScale());
-        return new Transform(newTranslation, newRotation, newScale);
+    public static Transform combineTransforms(Transform parent, Transform child) {
+        // Combine scale component-wise
+        Vec3 globalScale = parent.getScale().multiply(child.getScale());
+
+        // Apply parent's scale to child's translation, then rotate, then translate
+        Vec3 scaledChildTranslation = child.getTranslation().multiply(parent.getScale());
+        Vec3 rotatedTranslation = parent.getRotation().apply(scaledChildTranslation);
+        Vec3 globalTranslation = parent.getTranslation().add(rotatedTranslation);
+
+        // Combine rotations by multiplication
+        Quaternion globalRotation = parent.getRotation().multiply(child.getRotation());
+
+        return new Transform(globalTranslation, globalRotation, globalScale);
     }
 
-    // Get my forward, z+ is forward when not rotated
-    public Vec3 getForward() {
-        return new Vec3(0, 0, 1).ro(rotation);
+    public Vec3 local_x() {
+        return this.rotation.multiply(Vec3.X);
+    }
+
+    public Vec3 left() {
+        return local_x().multiply(-1);
+    }
+
+    public Vec3 right() {
+        return local_x();
+    }
+
+    public Vec3 local_y() {
+        return this.rotation.multiply(Vec3.Y);
+    }
+
+    public Vec3 up() {
+        return local_y();
+    }
+
+    public Vec3 down() {
+        return local_y().multiply(-1);
+    }
+
+    public Vec3 local_z() {
+        return this.rotation.multiply(Vec3.Z);
+    }
+
+    public Vec3 forward() {
+        return local_z().multiply(-1);
+    }
+
+    public Vec3 backward() {
+        return local_z();
     }
 }

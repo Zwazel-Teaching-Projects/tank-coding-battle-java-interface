@@ -33,20 +33,6 @@ public class Quaternion {
         return new Quaternion(x * sinHalfAngle, y * sinHalfAngle, z * sinHalfAngle, Math.cos(halfAngle));
     }
 
-    public Vec3 rotate(Vec3 v) {
-        // Convert the vector into a quaternion with zero scalar part
-        Quaternion vQuat = new Quaternion(v.getX(), v.getY(), v.getZ(), 0);
-
-        // Conjugate of the quaternion (inverse if unit quaternion)
-        Quaternion conjugate = this.conjugate();
-
-        // The rotated vector is: this * vQuat * this^-1
-        Quaternion resultQuat = this.multiply(vQuat).multiply(conjugate);
-
-        // The vector part of the result holds the rotated vector
-        return new Vec3(resultQuat.getX(), resultQuat.getY(), resultQuat.getZ());
-    }
-
     public Quaternion multiply(Quaternion other) {
         double x = this.w * other.x + this.x * other.w + this.y * other.z - this.z * other.y;
         double y = this.w * other.y - this.x * other.z + this.y * other.w + this.z * other.x;
@@ -55,29 +41,27 @@ public class Quaternion {
         return new Quaternion(x, y, z, w);
     }
 
-    public Quaternion inverse() {
-        double norm = this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w;
-        return new Quaternion(-this.x / norm, -this.y / norm, -this.z / norm, this.w / norm);
-    }
-
-    public Vec3 getForward() {
-        return rotate(new Vec3(0, 0, 1));
-    }
-
-    public Vec3 getUp() {
-        return rotate(new Vec3(0, 1, 0));
-    }
-
-    public Vec3 getRight() {
-        // In game space, “right” is –x.
-        return rotate(new Vec3(-1, 0, 0));
-    }
-
-    public double getPitch() {
-        return Math.asin(-2 * (x * z - w * y));
+    public Vec3 multiply(Vec3 v) {
+        Quaternion vQuat = new Quaternion(v.getX(), v.getY(), v.getZ(), 0);
+        Quaternion resultQuat = this.multiply(vQuat).multiply(this.conjugate());
+        return new Vec3(resultQuat.getX(), resultQuat.getY(), resultQuat.getZ());
     }
 
     public Quaternion conjugate() {
         return new Quaternion(-x, -y, -z, w);
+    }
+
+    public Vec3 apply(Vec3 v) {
+        // Convert the vector into a pure quaternion (0, v.x, v.y, v.z)
+        Quaternion vectorQuat = new Quaternion(v.getX(), v.getY(), v.getZ(), 0);
+
+        // For a unit quaternion, the inverse is simply its conjugate.
+        Quaternion qConjugate = this.conjugate();
+
+        // Perform the rotation: result = this * vectorQuat * this^-1 (which is the conjugate here)
+        Quaternion result = this.multiply(vectorQuat).multiply(qConjugate);
+
+        // Extract and return the rotated vector
+        return new Vec3(result.getX(), result.getY(), result.getZ());
     }
 }
