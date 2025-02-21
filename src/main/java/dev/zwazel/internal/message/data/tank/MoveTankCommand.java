@@ -19,13 +19,9 @@ public record MoveTankCommand(double distance) implements MessageData {
         // Calculate the new position
         Vec3 newPosition = currentTransform.getTranslation().add(myForward.multiply(distance));
 
-        // Calculate new global turret transform
-        Transform newGlobalTurretTransform = Transform.combineTransforms(
-                new Transform(newPosition, currentTransform.getRotation()), predictedState.transformTurret());
-
         // Update the predicted state
         predictedState = new ClientState(predictedState.id(), new Transform(newPosition, currentTransform.getRotation()),
-                predictedState.transformTurret(), newGlobalTurretTransform);
+                predictedState.transformTurret());
         world.updatePredictedState(predictedState);
     }
 }

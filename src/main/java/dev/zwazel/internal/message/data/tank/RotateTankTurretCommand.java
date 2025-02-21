@@ -24,11 +24,8 @@ public record RotateTankTurretCommand(double yawAngle, double pitchAngle) implem
         // Update the local transform of the turret
         Transform newTurretTransform = new Transform(currentTurretTransform.getTranslation(), newRotation);
 
-        // Calculate the new global transform of the turret
-        Transform newGlobalTurretTransform = Transform.combineTransforms(currentBodyTransform, newTurretTransform);
-
         // Update the predicted state
-        predictedState = new ClientState(predictedState.id(), currentBodyTransform, newTurretTransform, newGlobalTurretTransform);
+        predictedState = new ClientState(predictedState.id(), currentBodyTransform, newTurretTransform);
         world.updatePredictedState(predictedState);
     }
 }

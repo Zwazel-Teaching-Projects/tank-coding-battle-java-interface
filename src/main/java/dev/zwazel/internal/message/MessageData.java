@@ -7,6 +7,7 @@ import dev.zwazel.internal.message.data.*;
 import dev.zwazel.internal.message.data.tank.MoveTankCommand;
 import dev.zwazel.internal.message.data.tank.RotateTankBodyCommand;
 import dev.zwazel.internal.message.data.tank.RotateTankTurretCommand;
+import dev.zwazel.internal.message.data.tank.ShootCommand;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "message_type")
 @JsonSubTypes({
@@ -20,6 +21,7 @@ import dev.zwazel.internal.message.data.tank.RotateTankTurretCommand;
         @JsonSubTypes.Type(value = MoveTankCommand.class),
         @JsonSubTypes.Type(value = RotateTankBodyCommand.class),
         @JsonSubTypes.Type(value = RotateTankTurretCommand.class),
+        @JsonSubTypes.Type(value = ShootCommand.class),
 })
 public interface MessageData {
     /**
@@ -42,7 +44,8 @@ public interface MessageData {
 
     /**
      * Applies to the world when added to the queue
-     * @param world
+     *
+     * @param world the world
      */
     default void applyOnAddingToQueue(InternalGameWorld world) {
     }

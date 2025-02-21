@@ -18,13 +18,9 @@ public record RotateTankBodyCommand(double angle) implements MessageData {
         // Calculate the new rotation
         Quaternion newRotation = currentTransform.getRotation().multiply(Quaternion.fromAxisAngle(0, 1, 0, angle));
 
-        // Update new global turret transform
-        Transform newGlobalTurretTransform = Transform.combineTransforms(
-                new Transform(currentTransform.getTranslation(), newRotation), predictedState.transformTurret());
-
         // Update the predicted state
         predictedState = new ClientState(predictedState.id(), new Transform(currentTransform.getTranslation(), newRotation),
-                predictedState.transformTurret(), newGlobalTurretTransform);
+                predictedState.transformTurret());
         world.updatePredictedState(predictedState);
     }
 }

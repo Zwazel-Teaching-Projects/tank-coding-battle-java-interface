@@ -9,6 +9,7 @@ import dev.zwazel.internal.message.data.GameConfig;
 import dev.zwazel.internal.message.data.tank.MoveTankCommand;
 import dev.zwazel.internal.message.data.tank.RotateTankBodyCommand;
 import dev.zwazel.internal.message.data.tank.RotateTankTurretCommand;
+import dev.zwazel.internal.message.data.tank.ShootCommand;
 
 import java.util.HashMap;
 
@@ -205,10 +206,14 @@ public interface Tank {
         double desiredPitch = Math.atan2(localTarget.getY(), horizontalDist);
 
         // Since the turret's local forward is (0,0,1) (yaw==0, pitch==0), the angles to rotate are:
-        double yawDelta = desiredYaw;
         double pitchDelta = -desiredPitch;
 
-        rotateTurret(world, yawDelta, pitchDelta);
+        rotateTurret(world, desiredYaw, pitchDelta);
+    }
+
+    default void shoot(PublicGameWorld world) {
+        // TODO: Check for cooldown. maybe return a boolean if the shot was successful?
+        world.send(new MessageContainer(MessageTarget.Type.TO_SELF.get(), new ShootCommand()));
     }
 
     enum MoveDirection {
