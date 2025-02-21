@@ -64,4 +64,28 @@ public class Quaternion {
         // Extract and return the rotated vector
         return new Vec3(result.getX(), result.getY(), result.getZ());
     }
+
+    public Vec3 forward() {
+        return this.apply(Vec3.Z);
+    }
+
+    public Vec3 up() {
+        return this.apply(Vec3.Y);
+    }
+
+    public Vec3 right() {
+        return this.apply(Vec3.X);
+    }
+
+    public Vec3 backward() {
+        return this.apply(Vec3.Z.multiply(-1));
+    }
+
+    public Vec3 down() {
+        return this.apply(Vec3.Y.multiply(-1));
+    }
+
+    public Vec3 left() {
+        return this.apply(Vec3.X.multiply(-1));
+    }
 }

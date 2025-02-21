@@ -18,14 +18,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class Vec3 {
-    private double x;
-    private double y;
-    private double z;
-
     public static final Vec3 ZERO = new Vec3(0, 0, 0);
     public static final Vec3 X = new Vec3(1, 0, 0);
     public static final Vec3 Y = new Vec3(0, 1, 0);
     public static final Vec3 Z = new Vec3(0, 0, 1);
+    private double x;
+    private double y;
+    private double z;
 
     @JsonCreator
     public Vec3(double[] values) {
@@ -68,10 +67,30 @@ public class Vec3 {
     }
 
     public double getAngle() {
-        return Math.atan2(z, x);
+        return Math.atan2(x, z);
     }
 
     public double distance(Vec3 other) {
         return subtract(other).magnitude();
+    }
+
+    public Vec3 cross(Vec3 other) {
+        return new Vec3(
+                y * other.z - z * other.y,
+                z * other.x - x * other.z,
+                x * other.y - y * other.x
+        );
+    }
+
+    public double dot(Vec3 other) {
+        return x * other.x + y * other.y + z * other.z;
+    }
+
+    public Vec3 scale(double scalar) {
+        return new Vec3(x * scalar, y * scalar, z * scalar);
+    }
+
+    public double length() {
+        return Math.sqrt(x * x + y * y + z * z);
     }
 }

@@ -55,39 +55,27 @@ public class Transform {
         return new Transform(globalTranslation, globalRotation, globalScale);
     }
 
-    public Vec3 local_x() {
-        return this.rotation.multiply(Vec3.X);
-    }
-
     public Vec3 left() {
-        return local_x().multiply(-1);
+        return this.rotation.left();
     }
 
     public Vec3 right() {
-        return local_x();
-    }
-
-    public Vec3 local_y() {
-        return this.rotation.multiply(Vec3.Y);
+        return this.rotation.right();
     }
 
     public Vec3 up() {
-        return local_y();
+        return this.rotation.up();
     }
 
     public Vec3 down() {
-        return local_y().multiply(-1);
-    }
-
-    public Vec3 local_z() {
-        return this.rotation.multiply(Vec3.Z);
+        return this.rotation.down();
     }
 
     public Vec3 forward() {
-        return local_z().multiply(-1);
+        return this.rotation.forward();
     }
 
     public Vec3 backward() {
-        return local_z();
+        return this.rotation.backward();
     }
 }

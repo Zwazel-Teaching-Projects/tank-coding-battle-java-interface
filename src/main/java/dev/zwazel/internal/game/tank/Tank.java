@@ -1,7 +1,6 @@
 package dev.zwazel.internal.game.tank;
 
 import dev.zwazel.internal.PublicGameWorld;
-import dev.zwazel.internal.game.transform.Quaternion;
 import dev.zwazel.internal.game.transform.Transform;
 import dev.zwazel.internal.game.transform.Vec3;
 import dev.zwazel.internal.message.MessageContainer;
@@ -61,72 +60,69 @@ public interface Tank {
      * @param simultaneous   If true, rotate and move concurrently; if false, only move when aligned.
      */
     default void moveTowards(PublicGameWorld world, MoveDirection moveDirection, Vec3 targetPosition, boolean simultaneous) {
-        // Fetch the tank's current state and position.
+        // Obtain current tank transform
         Transform currentTransform = world.getMyPredictedState().transformBody();
-        Vec3 currentPosition = currentTransform.getTranslation();
+        Vec3 currentPos = currentTransform.getTranslation();
         Vec3 currentForward = currentTransform.forward();
+
+        // Direction to the target, ignoring vertical component
+        Vec3 toTarget = targetPosition.subtract(currentPos);
+        Vec3 horizontalToTarget = new Vec3(toTarget.getX(), 0, toTarget.getZ()).normalize_or_zero();
+
+        // Calculate the signed angle difference between currentForward and horizontalToTarget
         double currentYaw = currentForward.getAngle();
-
-        // Compute the desired yaw based on move direction.
-        Vec3 toTarget = targetPosition.subtract(currentPosition);
-        Vec3 desiredDirection = new Vec3(toTarget.getX(), 0, toTarget.getZ()).normalize_or_zero();
-
-        double desiredYaw;
-        if (moveDirection == MoveDirection.FORWARD) {
-            desiredYaw = desiredDirection.getAngle();
-        } else if (moveDirection == MoveDirection.BACKWARD) {
-            // For backwards, the tank's rear must face the target.
-            desiredYaw = normalizeAngle(desiredDirection.getAngle() + Math.PI);
-        } else {
-            throw new IllegalArgumentException("Invalid move direction: " + moveDirection);
-        }
-
-        // Calculate the smallest signed angle difference.
+        double desiredYaw = horizontalToTarget.getAngle();
         double deltaYaw = Math.atan2(Math.sin(desiredYaw - currentYaw), Math.cos(desiredYaw - currentYaw));
 
-        // Calculate the distance to the target.
-        double distance = currentPosition.distance(targetPosition);
-
+        // If we move simultaneously, rotate and move in this call
         if (simultaneous) {
-            // Unleash chaos: rotate and move at the same time.
             rotateBody(world, deltaYaw);
-            move(world, moveDirection, distance);
+            move(world, moveDirection);
         } else {
-            // Only advance when the tank's murderous focus is nearly aligned.
-            final double ALIGNMENT_THRESHOLD = 0.1; // roughly 5.7 degrees of tolerance
-            if (Math.abs(deltaYaw) < ALIGNMENT_THRESHOLD) {
-                move(world, moveDirection, distance);
-            } else {
+            // Only move if we're facing mostly toward the target
+            double angleThreshold = 0.1; // adjust as needed
+            if (Math.abs(deltaYaw) > angleThreshold) {
                 rotateBody(world, deltaYaw);
+            } else {
+                move(world, moveDirection);
             }
         }
     }
 
-    /**
-     * Normalize an angle to be within [0, 2*PI).
-     *
-     * @param angle the angle in radians.
-     * @return the normalized angle.
-     */
-    default double normalizeAngle(double angle) {
-        double twoPi = 2 * Math.PI;
-        angle = angle % twoPi;
-        if (angle < 0) {
-            angle += twoPi;
+
+    default void moveTowards(PublicGameWorld world, Vec3 targetPosition, boolean simultaneous) {
+        Transform currentTransform = world.getMyPredictedState().transformBody();
+        Vec3 currentForward = currentTransform.forward();
+
+        double currentYaw = currentForward.getAngle();
+
+        // Calculate desired yaw for forward
+        Vec3 toTarget = new Vec3(targetPosition.getX() - currentTransform.getTranslation().getX(), 0,
+                targetPosition.getZ() - currentTransform.getTranslation().getZ()).normalize_or_zero();
+        double desiredYawForward = toTarget.getAngle();
+        double deltaYawForward = Math.atan2(Math.sin(desiredYawForward - currentYaw),
+                Math.cos(desiredYawForward - currentYaw));
+
+        // Calculate desired yaw for backward
+        double desiredYawBackward = desiredYawForward + Math.PI;
+        double deltaYawBackward = Math.atan2(Math.sin(desiredYawBackward - currentYaw),
+                Math.cos(desiredYawBackward - currentYaw));
+
+        // Determine which direction requires less rotation
+        if (Math.abs(deltaYawForward) <= Math.abs(deltaYawBackward)) {
+            moveTowards(world, MoveDirection.FORWARD, targetPosition, simultaneous);
+        } else {
+            moveTowards(world, MoveDirection.BACKWARD, targetPosition, simultaneous);
         }
-        return angle;
     }
 
     /**
      * @param world The game world.
      * @param angle The angle to rotate in radians. (might get capped by the tank's rotation speed)
-     * @return The predicted angle of rotation in radians. Could be different from the actual angle rotated,
-     * as the rotation might not have been fully completed because of possible collisions.
      */
-    default double rotateBody(PublicGameWorld world, double angle) {
+    default void rotateBody(PublicGameWorld world, double angle) {
         TankConfig config = getConfig(world);
-        // If angle > config.rotationSpeed, rotate only config.rotationSpeed
-        angle = Math.max(-config.bodyRotationSpeed(), Math.min(angle, config.bodyRotationSpeed()));
+        angle = Math.clamp(angle, -config.bodyRotationSpeed(), config.bodyRotationSpeed());
 
         MessageContainer message = new MessageContainer(
                 MessageTarget.Type.TO_SELF.get(),
@@ -134,39 +130,29 @@ public interface Tank {
         );
 
         world.send(message);
-
-        return angle;
     }
 
     /**
      * @param world          The game world.
      * @param targetPosition The position to rotate the tank body towards.
-     * @return The predicted angle of rotation in radians. Could be different from the actual angle rotated,
-     * as the rotation might not have been fully completed because of possible collisions.
      */
-    default double rotateBodyTowards(PublicGameWorld world, Vec3 targetPosition) {
-        // Get the current tank transform.
+    default void rotateBodyTowards(PublicGameWorld world, Vec3 targetPosition) {
         Transform currentTransform = world.getMyPredictedState().transformBody();
-        Vec3 currentPosition = currentTransform.getTranslation();
-        Quaternion currentRotation = currentTransform.getRotation();
-
-        // Get the current forward vector in game space.
+        Vec3 currentPos = currentTransform.getTranslation();
         Vec3 currentForward = currentTransform.forward();
+
+        // Project the direction to the target onto the horizontal plane
+        Vec3 toTarget = targetPosition.subtract(currentPos);
+        Vec3 horizontalToTarget = new Vec3(toTarget.getX(), 0, toTarget.getZ()).normalize_or_zero();
+
+        // Current yaw and desired yaw
         double currentYaw = currentForward.getAngle();
-
-        // Compute the vector from the tank's position to the target,
-        // and project it onto the XZ-plane (ignore Y).
-        Vec3 toTarget = targetPosition.subtract(currentPosition);
-        Vec3 desiredDirection = new Vec3(toTarget.getX(), 0, toTarget.getZ());
-
-        desiredDirection = desiredDirection.normalize_or_zero();
-        double desiredYaw = desiredDirection.getAngle();
-
-        // Compute the smallest signed angle difference.
+        double desiredYaw = horizontalToTarget.getAngle();
+        // Smallest signed angle difference
         double deltaYaw = Math.atan2(Math.sin(desiredYaw - currentYaw), Math.cos(desiredYaw - currentYaw));
 
-        // Delegate to the existing rotateBody method (which caps the rotation speed).
-        return rotateBody(world, deltaYaw);
+        // Rotate by deltaYaw
+        rotateBody(world, deltaYaw);
     }
 
     default void rotateTurretYaw(PublicGameWorld world, double yawAngle) {
@@ -196,58 +182,33 @@ public interface Tank {
         world.send(message);
     }
 
-    default void rotateTurretTowards(PublicGameWorld world, Vec3 targetPosition) {
+    default void rotateTurretTowards(PublicGameWorld world, Vec3 globalTarget) {
+        // Obtain body and turret transforms
         Transform bodyTransform = world.getMyPredictedState().transformBody();
         Transform turretLocalTransform = world.getMyPredictedState().transformTurret();
 
-        Transform calculatedPredictedTurretGlobalTransform = Transform.combineTransforms(bodyTransform, turretLocalTransform);
-        Transform actualPredictedTurretGlobalTransform = world.getMyPredictedState().globalTransformTurret();
-        Transform actualTurretGlobalTransform = world.getMyState().globalTransformTurret();
+        // Combine transforms to get turret's world transform
+        Transform turretWorldTransform = Transform.combineTransforms(bodyTransform, turretLocalTransform);
 
-        System.out.println(
-                "Calculated PREDICTED turret global transform:\n\t" + calculatedPredictedTurretGlobalTransform
-                        + "\nActual PREDICTED turret global transform:\n\t" + actualPredictedTurretGlobalTransform
-                        + "\nActual turret global transform:\n\t" + actualTurretGlobalTransform
-                        + "\n---"
-        );
+        // Compute turret's global position
+        Vec3 turretGlobalPos = turretWorldTransform.getTranslation();
 
-        Vec3 turretGlobalPosition = calculatedPredictedTurretGlobalTransform.getTranslation();
+        // Convert global target into turret-local space using the turret's world rotation
+        // By applying the conjugate to the difference vector
+        Vec3 localTarget = turretWorldTransform.getRotation().conjugate()
+                .apply(globalTarget.subtract(turretGlobalPos));
 
-        Vec3 currentForward = calculatedPredictedTurretGlobalTransform.forward();
+        // In turret-local space the default forward is (0, 0, 1)
+        // Compute desired yaw and pitch relative to this frame.
+        double desiredYaw = localTarget.getAngle(); // atan2(x, z)
+        double horizontalDist = Math.sqrt(localTarget.getX() * localTarget.getX() + localTarget.getZ() * localTarget.getZ());
+        double desiredPitch = Math.atan2(localTarget.getY(), horizontalDist);
 
-        double currentYaw = Math.atan2(currentForward.getZ(), currentForward.getX());
+        // Since the turret's local forward is (0,0,1) (yaw==0, pitch==0), the angles to rotate are:
+        double yawDelta = desiredYaw;
+        double pitchDelta = -desiredPitch;
 
-        double horizontalMag = Math.sqrt(currentForward.getX() * currentForward.getX()
-                + currentForward.getZ() * currentForward.getZ());
-        double currentPitch = Math.atan2(currentForward.getY(), horizontalMag);
-
-        Vec3 toTarget = targetPosition.subtract(turretGlobalPosition);
-
-        Vec3 desiredDirection = new Vec3(toTarget.getX(), 0, toTarget.getZ()).normalize_or_zero();
-        double desiredYaw = Math.atan2(desiredDirection.getZ(), desiredDirection.getX());
-
-        // 8. Determine desired pitch by considering vertical difference vs. horizontal distance
-        double targetHorizontal = Math.sqrt(toTarget.getX() * toTarget.getX()
-                + toTarget.getZ() * toTarget.getZ());
-        double desiredPitch = Math.atan2(toTarget.getY(), targetHorizontal);
-
-        double rawDeltaYaw = desiredYaw - currentYaw;
-        double deltaYaw = Math.atan2(Math.sin(rawDeltaYaw), Math.cos(rawDeltaYaw));
-
-        double pitchDelta = currentPitch - desiredPitch;
-
-        rotateTurret(world, deltaYaw, pitchDelta);
-    }
-
-    enum YawRotationDirection {
-        CLOCKWISE(-1.0),
-        COUNTER_CLOCKWISE(1.0);
-
-        final double multiplier;
-
-        YawRotationDirection(double multiplier) {
-            this.multiplier = multiplier;
-        }
+        rotateTurret(world, yawDelta, pitchDelta);
     }
 
     enum MoveDirection {
