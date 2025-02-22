@@ -25,7 +25,7 @@ public record RotateTankTurretCommand(double yawAngle, double pitchAngle) implem
         Transform newTurretTransform = new Transform(currentTurretTransform.getTranslation(), newRotation);
 
         // Update the predicted state
-        predictedState = new ClientState(predictedState.id(), currentBodyTransform, newTurretTransform);
+        predictedState = new ClientState(predictedState.id(), currentBodyTransform, newTurretTransform, predictedState.state());
         world.updatePredictedState(predictedState);
     }
 }
