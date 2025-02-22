@@ -20,7 +20,7 @@ public record RotateTankBodyCommand(double angle) implements MessageData {
 
         // Update the predicted state
         predictedState = new ClientState(predictedState.id(), new Transform(currentTransform.getTranslation(), newRotation),
-                predictedState.transformTurret(), predictedState.state());
+                predictedState.transformTurret(), predictedState.state(), predictedState.shootCooldown());
         world.updatePredictedState(predictedState);
     }
 }
