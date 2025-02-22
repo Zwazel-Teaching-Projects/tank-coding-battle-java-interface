@@ -3,6 +3,7 @@ package dev.zwazel.internal;
 import dev.zwazel.internal.connection.client.ConnectedClientConfig;
 import dev.zwazel.internal.game.state.ClientState;
 import dev.zwazel.internal.game.tank.Tank;
+import dev.zwazel.internal.game.tank.TankConfig;
 import dev.zwazel.internal.message.MessageContainer;
 import dev.zwazel.internal.message.data.GameConfig;
 import dev.zwazel.internal.message.data.GameState;
@@ -128,4 +129,8 @@ public interface PublicGameWorld {
      * @return a list of incoming messages
      */
     List<MessageContainer> getIncomingMessages();
+
+    default Optional<TankConfig> getTankConfig(String tankType) {
+        return getGameConfig().getTankConfig(tankType);
+    }
 }

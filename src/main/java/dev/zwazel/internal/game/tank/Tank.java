@@ -211,9 +211,16 @@ public interface Tank {
         rotateTurret(world, desiredYaw, pitchDelta);
     }
 
-    default void shoot(PublicGameWorld world) {
-        // TODO: Check for cooldown. maybe return a boolean if the shot was successful?
+    default boolean shoot(PublicGameWorld world) {
+        if (!canShoot(world)) {
+            return false;
+        }
         world.send(new MessageContainer(MessageTarget.Type.TO_SELF.get(), new ShootCommand()));
+        return true;
+    }
+
+    default boolean canShoot(PublicGameWorld world) {
+        return world.getMyPredictedState().shootCooldown() <= 0;
     }
 
     enum MoveDirection {
