@@ -14,8 +14,12 @@ import dev.zwazel.internal.game.transform.Vec3;
  * @param shootCooldown            how many ticks the tank has to wait between shots
  * @param projectileDamage         how much damage the projectile does
  * @param projectileSpeed          how fast the projectile moves per tick
+ * @param projectileLifetime       how many ticks the projectile lives
+ * @param projectileSize           the size of the projectile (half extents)
+ * @param maxHealth                the maximum health the tank can have
  */
 public record TankConfig(double moveSpeed, double bodyRotationSpeed, double turretYawRotationSpeed,
-                         double turretPitchRotationSpeed, double turretMaxPitch, double turretMinPitch, float maxSlope,
-                         Vec3 size, Long shootCooldown, double projectileDamage, double projectileSpeed) {
+                         double turretPitchRotationSpeed, double turretMaxPitch, double turretMinPitch, double maxSlope,
+                         Vec3 size, Long shootCooldown, double projectileDamage, double projectileSpeed,
+                         long projectileLifetime, Vec3 projectileSize, double maxHealth) {
 }
