@@ -10,7 +10,7 @@ import dev.zwazel.internal.game.transform.Vec3;
  * @param turretMaxPitch           the maximum pitch the turret can have
  * @param turretMinPitch           the minimum pitch the turret can have
  * @param maxSlope                 the maximum slope the tank can drive on ("climb" up)
- * @param size                     the size of the tank (half extents)
+ * @param size                     the size of the tank (full extents)
  * @param shootCooldown            how many ticks the tank has to wait between shots
  * @param projectileDamage         how much damage the projectile does
  * @param projectileSpeed          how fast the projectile moves per tick
