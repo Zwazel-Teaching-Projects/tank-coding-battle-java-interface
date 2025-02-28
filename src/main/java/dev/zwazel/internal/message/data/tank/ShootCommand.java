@@ -21,6 +21,6 @@ public record ShootCommand() implements MessageData {
         }
 
         world.updatePredictedState(new ClientState(predictedState.id(), predictedState.transformBody(),
-                predictedState.transformTurret(), predictedState.state(), tankConfig.shootCooldown()));
+                predictedState.transformTurret(), predictedState.state(), tankConfig.shootCooldown(), predictedState.currentHealth()));
     }
 }

@@ -21,7 +21,7 @@ public record MoveTankCommand(double distance) implements MessageData {
 
         // Update the predicted state
         predictedState = new ClientState(predictedState.id(), new Transform(newPosition, currentTransform.getRotation()),
-                predictedState.transformTurret(), predictedState.state(), predictedState.shootCooldown());
+                predictedState.transformTurret(), predictedState.state(), predictedState.shootCooldown(), predictedState.currentHealth());
         world.updatePredictedState(predictedState);
     }
 }

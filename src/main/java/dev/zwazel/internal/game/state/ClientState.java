@@ -12,8 +12,8 @@ import dev.zwazel.internal.game.transform.Transform;
  * @param shootCooldown   The amount of ticks until the tank can shoot again
  */
 public record ClientState(long id, Transform transformBody, Transform transformTurret, PlayerState state,
-                          long shootCooldown) {
-    enum PlayerState {
+                          long shootCooldown, float currentHealth) {
+    public enum PlayerState {
         ALIVE,
         DEAD
     }
