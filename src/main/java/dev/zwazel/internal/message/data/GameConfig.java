@@ -82,7 +82,7 @@ public record GameConfig(long tickRate, long clientId, MapDefinition mapDefiniti
                 .toList();
     }
 
-    public Optional<TankConfig> getTankConfig(String tankType) {
+    public Optional<TankConfig> getTankConfig(TankType tankType) {
         return Optional.ofNullable(tankConfigs.get(tankType));
     }
 }
