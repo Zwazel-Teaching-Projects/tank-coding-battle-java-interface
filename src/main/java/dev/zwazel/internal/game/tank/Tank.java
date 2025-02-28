@@ -14,11 +14,11 @@ import dev.zwazel.internal.message.data.tank.ShootCommand;
 import java.util.HashMap;
 
 public interface Tank {
-    String getTankType();
+    TankType getTankType();
 
     default TankConfig getConfig(PublicGameWorld world) {
         GameConfig config = world.getGameConfig();
-        HashMap<String, TankConfig> configs = config.tankConfigs();
+        HashMap<TankType, TankConfig> configs = config.tankConfigs();
         return configs.get(getTankType());
     }
 
