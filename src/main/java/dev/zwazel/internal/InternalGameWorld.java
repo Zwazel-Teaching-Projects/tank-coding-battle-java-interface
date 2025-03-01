@@ -31,4 +31,6 @@ public interface InternalGameWorld {
     BlockingQueue<MessageContainer> getIncomingMessageQueue();
 
     BlockingQueue<MessageContainer> getOutgoingMessageQueue();
+
+    void startGame();
 }

@@ -15,6 +15,7 @@ import dev.zwazel.internal.message.target.*;
         @JsonSubTypes.Type(value = ServerOnlyMessageTarget.class, name = "SERVER_ONLY"),
         @JsonSubTypes.Type(value = TeamMessageTarget.class, name = "TEAM"),
         @JsonSubTypes.Type(value = ToSelfMessageTarget.class, name = "TO_SELF"),
+        @JsonSubTypes.Type(value = ToLobbyDirectly.class, name = "TO_LOBBY_DIRECTLY"),
 })
 public interface MessageTarget {
     enum Type {
@@ -27,7 +28,8 @@ public interface MessageTarget {
         ALL_IN_LOBBY(_ -> new LobbyMessageTarget()),
         SERVER_ONLY(_ -> new ServerOnlyMessageTarget()),
         TEAM(_ -> new TeamMessageTarget()),
-        TO_SELF(_ -> new ToSelfMessageTarget());
+        TO_SELF(_ -> new ToSelfMessageTarget()),
+        TO_LOBBY_DIRECTLY(_ -> new ToLobbyDirectly());
 
         private final MessageTargetSupplier supplier;
 
