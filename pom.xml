@@ -6,7 +6,7 @@
 
     <groupId>dev.zwazel</groupId>
     <artifactId>tank-coding-battle-java-interface</artifactId>
-    <version>v0.3</version>
+    <version>1.0-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>23</maven.compiler.source>
@@ -52,6 +52,12 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.18.2</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.codehaus.mojo/versions-maven-plugin -->
+        <dependency>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>versions-maven-plugin</artifactId>
+            <version>2.18.0</version>
         </dependency>
     </dependencies>
 
