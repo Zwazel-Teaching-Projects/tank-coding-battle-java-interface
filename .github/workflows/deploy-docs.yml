@@ -33,7 +33,8 @@ jobs:
           else
             echo "No changes to commit, our scheme remains unchanged."
           fi
-          git push origin documentation
+          # Force push to obliterate any remote remnants
+          git push origin documentation --force
 
       - name: Deploy JavaDoc 🚀
         uses: MathieuSoysal/Javadoc-publisher.yml@v3.0.2
