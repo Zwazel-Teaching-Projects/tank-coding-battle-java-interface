@@ -15,24 +15,23 @@ jobs:
         with:
           ref: main
 
-      - name: Copy Main Content into Docs Folder
+      - name: Prepare Documentation Branch
         run: |
-          echo "Summoning the main branch into the docs folder..."
-          mkdir -p docs
-          shopt -s dotglob nullglob extglob
-          cp -r !(docs) docs/
+          echo "Culling all but the sacred docs folder..."
+          # Remove everything except the .git directory and the docs folder
+          find . -maxdepth=1 ! -name '.git' ! -name 'docs' -exec rm -rf {} +
 
       - name: Commit Docs to Documentation Branch
         run: |
-          echo "Forging the documentation branch with our pilfered main contents..."
+          echo "Forging the documentation branch with our arcane docs folder..."
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -B documentation
-          git add docs
+          git add -A
           if ! git diff --cached --quiet; then
-            git commit -m "Populate docs folder with main branch content"
+            git commit -m "Update docs folder from main branch"
           else
-            echo "No changes to commit, nothing to alter in our grand design."
+            echo "No changes to commit, our scheme remains unchanged."
           fi
           git push origin documentation
 
