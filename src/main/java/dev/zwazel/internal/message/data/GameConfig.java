@@ -5,6 +5,7 @@ import dev.zwazel.internal.connection.client.ConnectedClientConfig;
 import dev.zwazel.internal.game.lobby.TeamConfig;
 import dev.zwazel.internal.game.map.MapDefinition;
 import dev.zwazel.internal.game.tank.TankConfig;
+import dev.zwazel.internal.game.tank.TankType;
 import dev.zwazel.internal.message.MessageData;
 import lombok.Builder;
 
@@ -17,7 +18,7 @@ import java.util.Optional;
 public record GameConfig(long tickRate, long clientId, MapDefinition mapDefinition,
                          ConnectedClientConfig[] connectedClients,
                          HashMap<String, TeamConfig> teamConfigs,
-                         HashMap<String, TankConfig> tankConfigs) implements MessageData {
+                         HashMap<TankType, TankConfig> tankConfigs) implements MessageData {
     @Override
     public boolean applyOnReceive(InternalGameWorld internalWorld) {
         internalWorld.setGameConfig(this);
@@ -81,7 +82,7 @@ public record GameConfig(long tickRate, long clientId, MapDefinition mapDefiniti
                 .toList();
     }
 
-    public Optional<TankConfig> getTankConfig(String tankType) {
+    public Optional<TankConfig> getTankConfig(TankType tankType) {
         return Optional.ofNullable(tankConfigs.get(tankType));
     }
 }

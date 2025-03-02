@@ -1,6 +1,9 @@
 package dev.zwazel.internal.game.tank;
 
+import dev.zwazel.internal.game.misc.Side;
 import dev.zwazel.internal.game.transform.Vec3;
+
+import java.util.HashMap;
 
 /**
  * @param moveSpeed                the speed at which the tank can move forward and backward per tick
@@ -17,9 +20,12 @@ import dev.zwazel.internal.game.transform.Vec3;
  * @param projectileLifetime       how many ticks the projectile lives
  * @param projectileSize           the size of the projectile (half extents)
  * @param maxHealth                the maximum health the tank can have
+ * @param armor                    the armor of the tank on each side (0-1, 0 = no armor, 1 = full armor)
+ *                                 Damage is reduced by the armor value on the side that was hit
+ *                                 calculated as: damage = damage * (1 - armor)
  */
-public record TankConfig(double moveSpeed, double bodyRotationSpeed, double turretYawRotationSpeed,
-                         double turretPitchRotationSpeed, double turretMaxPitch, double turretMinPitch, double maxSlope,
-                         Vec3 size, Long shootCooldown, double projectileDamage, double projectileSpeed,
-                         long projectileLifetime, Vec3 projectileSize, double maxHealth) {
+public record TankConfig(float moveSpeed, float bodyRotationSpeed, float turretYawRotationSpeed,
+                         float turretPitchRotationSpeed, float turretMaxPitch, float turretMinPitch, float maxSlope,
+                         Vec3 size, Long shootCooldown, float projectileDamage, float projectileSpeed,
+                         long projectileLifetime, Vec3 projectileSize, float maxHealth, HashMap<Side, Float> armor) {
 }

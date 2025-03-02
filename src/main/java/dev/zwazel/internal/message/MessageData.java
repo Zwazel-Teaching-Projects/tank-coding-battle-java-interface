@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import dev.zwazel.internal.InternalGameWorld;
 import dev.zwazel.internal.message.data.*;
-import dev.zwazel.internal.message.data.tank.MoveTankCommand;
-import dev.zwazel.internal.message.data.tank.RotateTankBodyCommand;
-import dev.zwazel.internal.message.data.tank.RotateTankTurretCommand;
-import dev.zwazel.internal.message.data.tank.ShootCommand;
+import dev.zwazel.internal.message.data.tank.*;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "message_type")
 @JsonSubTypes({
@@ -22,6 +19,8 @@ import dev.zwazel.internal.message.data.tank.ShootCommand;
         @JsonSubTypes.Type(value = RotateTankBodyCommand.class),
         @JsonSubTypes.Type(value = RotateTankTurretCommand.class),
         @JsonSubTypes.Type(value = ShootCommand.class),
+        @JsonSubTypes.Type(value = GotHit.class),
+        @JsonSubTypes.Type(value = Hit.class),
 })
 public interface MessageData {
     /**

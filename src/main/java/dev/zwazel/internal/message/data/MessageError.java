@@ -22,5 +22,6 @@ public record MessageError(@JsonProperty("error_type") ErrorTypes error,
         LOBBY_NOT_READY_TO_START,
         TEAM_DOES_NOT_EXIST,
         TEAM_FULL,
+        INVALID_SENDER_STATE,
     }
 }

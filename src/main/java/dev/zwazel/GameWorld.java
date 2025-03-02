@@ -11,6 +11,7 @@ import dev.zwazel.internal.game.tank.TankFactory;
 import dev.zwazel.internal.message.MessageContainer;
 import dev.zwazel.internal.message.data.GameConfig;
 import dev.zwazel.internal.message.data.GameState;
+import dev.zwazel.internal.message.data.StartGameConfig;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -18,17 +19,20 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import static dev.zwazel.internal.message.MessageTarget.Type.TO_LOBBY_DIRECTLY;
+
 public class GameWorld implements InternalGameWorld, PublicGameWorld {
     private static GameWorld instance;
 
     private final PropertyHandler properties = PropertyHandler.getInstance();
     private final BlockingQueue<MessageContainer> incomingMessages = new LinkedBlockingQueue<>();
     private final BlockingQueue<MessageContainer> outgoingMessages = new LinkedBlockingQueue<>();
+    private final DebugMode debug;
+    private boolean immediatelyStartGame;
     private ConnectionManager connection;
     private GameState gameState;
     private BotInterface bot;
     private Tank tank;
-    private DebugMode debug = DebugMode.NONE;
     private GameConfig gameConfig;
     /**
      * The predicted state of the client.
@@ -36,21 +40,30 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
      * Every move command locally executed applies its predicted effect to this state.
      */
     private ClientState myPredictedState;
+    private GameSimulationThread simulationThread;
 
     private volatile boolean running = false;
 
     private GameWorld() {
         // Private constructor to prevent instantiation
+        this.debug = DebugMode.valueOf(this.properties.getProperty("debug.mode").toUpperCase());
     }
 
-    public static <T extends Tank> void startGame(BotInterface bot, Class<T> tankClass) {
+    public static boolean startGame(BotInterface bot, Class<? extends Tank> tankClass) {
         GameWorld gameWorld = GameWorld.getInstance();
-        gameWorld.bot = bot;
-        gameWorld.debug = DebugMode.valueOf(gameWorld.properties.getProperty("debug.mode").toUpperCase());
+        gameWorld.setup(bot, tankClass, true);
+        if (gameWorld.connect(true)) {
+            return true;
+        } else {
+            System.err.println("Failed to start the game world due to connection issues.");
+            return false;
+        }
+    }
 
-        gameWorld.tank = TankFactory.createTank(tankClass);
-
-        gameWorld.start();
+    public static boolean connectToServer(BotInterface bot, Class<? extends Tank> tankClass) {
+        GameWorld gameWorld = GameWorld.getInstance();
+        gameWorld.setup(bot, tankClass, false);
+        return gameWorld.connect(false);
     }
 
     private static GameWorld getInstance() {
@@ -61,30 +74,37 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
         return instance;
     }
 
+    private void setup(BotInterface bot, Class<? extends Tank> tankClass, boolean immediatelyStartGame) {
+        this.bot = bot;
+        this.tank = TankFactory.createTank(tankClass);
+        this.immediatelyStartGame = immediatelyStartGame;
+    }
 
-    private void start() {
-        if (running) {
-            System.err.println("Game world is already running!");
-            return;
+    private boolean connect(boolean immediatelyStartGame) {
+        if (connection.isConnected()) {
+            return true;
         }
-
-        System.out.println("Starting game world...");
 
         String serverIp = properties.getProperty("server.ip");
         int serverPort = Integer.parseInt(properties.getProperty("server.port"));
 
-        running = true;
         if (!connection.connect(serverIp, serverPort)) {
             System.err.println("Failed to connect to " + serverIp + ":" + serverPort);
-            running = false;
-        } else {
-            try {
-                Thread simulationThread = new Thread(new GameSimulationThread(instance, new DataOutputStream(connection.getSocket().getOutputStream())), "Game-Simulation");
-                simulationThread.start();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            return false;
         }
+
+        this.running = true;
+        try {
+            this.simulationThread = new GameSimulationThread(instance, new DataOutputStream(this.connection.getSocket().getOutputStream()));
+            new Thread(this.simulationThread, "Game-Simulation").start();
+        } catch (IOException e) {
+            this.running = false;
+            e.printStackTrace();
+
+            throw new RuntimeException(e);
+        }
+
+        return true;
     }
 
     @Override
@@ -112,6 +132,23 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     @Override
     public BlockingQueue<MessageContainer> getOutgoingMessageQueue() {
         return outgoingMessages;
+    }
+
+    @Override
+    public void startGame() {
+        if (!immediatelyStartGame) {
+            return;
+        }
+
+        if (!running) {
+            System.err.println("Game world is not running!");
+        }
+
+        boolean fillEmptySlotsWithDummies = Boolean.parseBoolean(properties.getProperty("lobby.fillEmptySlots"));
+        this.send(new MessageContainer(
+                TO_LOBBY_DIRECTLY.get(),
+                StartGameConfig.builder().fillEmptySlotsWithDummies(fillEmptySlotsWithDummies).build()
+        ));
     }
 
     @Override

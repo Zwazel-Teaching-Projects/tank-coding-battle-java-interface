@@ -23,7 +23,7 @@ public class ListenerThread implements Runnable {
         System.out.println("Listener thread started");
 
         try {
-            while (world.getPublicGameWorld().isRunning()) {
+            while (manager.isConnected()) {
                 byte[] lengthBytes = new byte[4];
                 input.readFully(lengthBytes);
                 int length = ByteBuffer.wrap(lengthBytes).order(ByteOrder.LITTLE_ENDIAN).getInt();

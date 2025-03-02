@@ -35,7 +35,7 @@ public class GameSimulationThread implements Runnable {
                 if (!ranSetup) {
                     GameConfig config = publicWorld.getGameConfig();
                     if (config != null) {
-                        internalWorld.getBot().setup(publicWorld, config);
+                        internalWorld.getBot().setup(publicWorld);
                         ranSetup = true;
                     }
                 }
@@ -50,7 +50,7 @@ public class GameSimulationThread implements Runnable {
                             -> message.getTickSent() < finalCurrentTickToProcess);
 
                     // Calling Bot
-                    internalWorld.getBot().processTick(publicWorld, publicWorld.getTank());
+                    internalWorld.getBot().processTick(publicWorld);
                 }
 
                 sendTickMessages();

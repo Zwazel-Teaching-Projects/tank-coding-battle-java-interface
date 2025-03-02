@@ -37,6 +37,8 @@ public class ConnectionManager {
     }
 
     public boolean connect(String host, int port) throws IllegalStateException {
+        System.out.println("Connecting to " + host + ":" + port + "...");
+
         if (world == null) {
             throw new IllegalStateException("World is not set");
         }
@@ -83,5 +85,9 @@ public class ConnectionManager {
             System.err.println("Error disconnecting from socket");
             e.printStackTrace();
         }
+    }
+
+    public boolean isConnected() {
+        return socket != null && socket.isConnected();
     }
 }
