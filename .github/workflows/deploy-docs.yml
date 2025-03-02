@@ -10,29 +10,28 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Checkout Master Branch
+      - name: Checkout Main Branch
         uses: actions/checkout@v2
         with:
-          ref: master
+          ref: main
 
-      - name: Copy Master Content into Docs Folder
+      - name: Copy Main Content into Docs Folder
         run: |
-          echo "Summoning the master branch into the docs folder..."
+          echo "Summoning the main branch into the docs folder..."
           mkdir -p docs
           shopt -s dotglob nullglob
           cp -r * docs/
-          # Prevent the docs folder from swallowing itself
           rm -rf docs/docs
 
       - name: Commit Docs to Documentation Branch
         run: |
-          echo "Forging the documentation branch with our stolen master contents..."
+          echo "Forging the documentation branch with our pilfered main contents..."
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -B documentation
           git add docs
           if ! git diff --cached --quiet; then
-            git commit -m "Populate docs folder with master branch content"
+            git commit -m "Populate docs folder with main branch content"
           else
             echo "No changes to commit, nothing to alter in our grand design."
           fi
