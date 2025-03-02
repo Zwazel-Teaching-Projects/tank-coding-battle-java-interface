@@ -31,7 +31,11 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -B documentation
           git add docs
-          git commit -m "Populate docs folder with master branch content" || echo "No changes to commit"
+          if ! git diff --cached --quiet; then
+            git commit -m "Populate docs folder with master branch content"
+          else
+            echo "No changes to commit, nothing to alter in our grand design."
+          fi
           git push origin documentation
 
       - name: Deploy JavaDoc 🚀
