@@ -1,0 +1,44 @@
+name: Deploy Docs
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Master Branch
+        uses: actions/checkout@v2
+        with:
+          ref: master
+
+      - name: Copy Master Content into Docs Folder
+        run: |
+          echo "Summoning the master branch into the docs folder..."
+          mkdir -p docs
+          shopt -s dotglob nullglob
+          cp -r * docs/
+          # Prevent the docs folder from swallowing itself
+          rm -rf docs/docs
+
+      - name: Commit Docs to Documentation Branch
+        run: |
+          echo "Forging the documentation branch with our stolen master contents..."
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B documentation
+          git add docs
+          git commit -m "Populate docs folder with master branch content" || echo "No changes to commit"
+          git push origin documentation
+
+      - name: Deploy JavaDoc 🚀
+        uses: MathieuSoysal/Javadoc-publisher.yml@v3.0.2
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          javadoc-branch: documentation
+          java-version: 23
+          target-folder: docs/javadoc
+          project: maven
