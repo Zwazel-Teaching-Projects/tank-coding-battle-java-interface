@@ -18,8 +18,8 @@ jobs:
       - name: Prepare Documentation Branch
         run: |
           echo "Culling all but the sacred docs folder..."
-          # Remove everything except the .git directory and the docs folder
-          find . -maxdepth=1 ! -name '.git' ! -name 'docs' -exec rm -rf {} +
+          # Remove everything except the current directory (.), .git, and docs
+          find . -maxdepth 1 ! -name '.' ! -name '.git' ! -name 'docs' -exec rm -rf {} +
 
       - name: Commit Docs to Documentation Branch
         run: |
