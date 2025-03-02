@@ -19,9 +19,8 @@ jobs:
         run: |
           echo "Summoning the main branch into the docs folder..."
           mkdir -p docs
-          shopt -s dotglob nullglob
-          cp -r * docs/
-          rm -rf docs/docs
+          shopt -s dotglob nullglob extglob
+          cp -r !(docs) docs/
 
       - name: Commit Docs to Documentation Branch
         run: |
