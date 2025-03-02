@@ -6,6 +6,7 @@ import dev.zwazel.internal.game.tank.Tank;
 import dev.zwazel.internal.game.tank.TankConfig;
 import dev.zwazel.internal.game.tank.TankType;
 import dev.zwazel.internal.message.MessageContainer;
+import dev.zwazel.internal.message.MessageData;
 import dev.zwazel.internal.message.data.GameConfig;
 import dev.zwazel.internal.message.data.GameState;
 
@@ -130,6 +131,18 @@ public interface PublicGameWorld {
      * @return a list of incoming messages
      */
     List<MessageContainer> getIncomingMessages();
+
+    /**
+     * Returns a copy of the current tick's incoming messages of a specific type.
+     *
+     * @param messageDataType the type of message data to filter for
+     * @return a list of incoming messages of the specified type
+     */
+    default List<MessageContainer> getIncomingMessages(Class<? extends MessageData> messageDataType) {
+        return getIncomingMessages().stream()
+                .filter(message -> message.getMessage().getClass().isAssignableFrom(messageDataType))
+                .toList();
+    }
 
     default Optional<TankConfig> getTankConfig(TankType tankType) {
         return getGameConfig().getTankConfig(tankType);
