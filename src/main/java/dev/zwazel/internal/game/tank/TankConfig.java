@@ -27,5 +27,6 @@ import java.util.HashMap;
 public record TankConfig(float moveSpeed, float bodyRotationSpeed, float turretYawRotationSpeed,
                          float turretPitchRotationSpeed, float turretMaxPitch, float turretMinPitch, float maxSlope,
                          Vec3 size, Long shootCooldown, float projectileDamage, float projectileSpeed,
-                         long projectileLifetime, Vec3 projectileSize, float maxHealth, HashMap<Side, Float> armor) {
+                         long projectileLifetime, Vec3 projectileSize, float maxHealth, HashMap<Side, Float> armor,
+                         long respawnTimer) {
 }
