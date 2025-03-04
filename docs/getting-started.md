@@ -65,10 +65,6 @@ Here is an example of a simple bot that moves forward every tick:
 
 ```java
 public class MyBot implements BotInterface {
-    public void start() {
-        GameWorld.startGame(this, LightTank.class);
-    }
-
     @Override
     public void setup(PublicGameWorld world) {
     }
@@ -88,3 +84,54 @@ public class MyBot implements BotInterface {
 }
 ```
 
+## Running the Game
+
+Before you can run the game, you need to make sure that you have a running game server.
+You can download the latest version of the server from
+the [releases page](https://github.com/Zwazel-Teaching-Projects/tank-coding-battle/releases).
+
+Once you have the server running, you need to connect your bot to the server.
+You can do this by creating a new instance of your bot and getting the instance of
+the [GameWorld](https://zwazel-teaching-projects.github.io/tank-coding-battle-java-interface/javadoc/dev/zwazel/GameWorld.html).
+The GameWorld uses the Singleton pattern, so you can get the instance of the GameWorld by calling
+`GameWorld.getInstance()`.
+
+Then you can start the game by calling `GameWorld.startGame()`. This will start the game and connect your bot to the
+server.
+You must provide an instance of your bot and the Tank Class you want to use.
+Check the [Tank Types](game/tanks/tank-types.md) for more information.
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        MyBot bot = new MyBot();
+        GameWorld gameWorld = GameWorld.getInstance();
+
+        gameWorld.startGame(bot, LightTank.class);
+    }
+}
+```
+
+To Successfully connect to the server, you need to provide the server address and port in the `app.properties` file.
+For more information, check the [Configuration](config/configuration.md) page.
+
+## Spectating the Game
+
+If you want to spectate the game, you need to join with a Spectator Client.
+You can download the latest version of the spectator client from
+the [releases page](https://github.com/Zwazel-Teaching-Projects/tank-coding-battle/releases).
+
+To use the client, the game must not have started yet. You'll also start the game from the client by pressing a button.
+So make sure the bot only connects to the server, but doesn't start the game.
+To do this, call `GameWorld.connectToServer()` instead of `GameWorld.startGame()`.
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        MyBot bot = new MyBot();
+        GameWorld gameWorld = GameWorld.getInstance();
+
+        gameWorld.connectToServer(bot, LightTank.class);
+    }
+}
+```
