@@ -14,10 +14,16 @@ public record MapDefinition(long width, long depth, SimplifiedRGB floorColor,
     public final static float TILE_SIZE = 1f;
 
     /**
-     * Returns the closest tile to the given world position.
+     * Returns the Coordinates of the closest tile to the given world position in the map grid.
+     * The closest tile is the tile whose center is closest to the given world position.
+     * The y coordinate of the world position must be positive.
+     * If the y coordinate of the world position is negative, an IllegalArgumentException is thrown.
+     * The y coordinate of the returned Vec3 is the height of the tile.
+     * The returned Vec3 is in grid coordinates, not world coordinates.
+     * The given Vec3 must be in world coordinates, not grid coordinates.
      *
      * @param worldPos the world position
-     * @return the closest tile to the world position, as a Vec3. The y in this case is always 0.
+     * @return the closest tile to the world position, as a Vec3.
      */
     public Vec3 getClosestTileFromWorld(@NonNull Vec3 worldPos) {
         if (worldPos.getY() < 0) {
