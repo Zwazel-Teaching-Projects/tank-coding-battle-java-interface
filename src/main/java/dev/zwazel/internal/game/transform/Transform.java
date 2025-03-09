@@ -6,14 +6,39 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Represents a 3D transformation in space.
+ */
 @Data
 @NoArgsConstructor(force = true)
 @AllArgsConstructor
 public class Transform {
+    /**
+     * The translation component of the transformation.
+     * This represents the position of the object in 3D space.
+     */
     private final Vec3 translation;
+
+    /**
+     * The rotation component of the transformation.
+     * This represents the orientation of the object in 3D space.
+     */
     private final Quaternion rotation;
+
+    /**
+     * The scale component of the transformation.
+     * This represents the size of the object in 3D space.
+     */
     private final Vec3 scale;
 
+    /**
+     * Constructs a new Transform with the given translation, rotation, and scale.
+     * This constructor is used by Jackson to deserialize a Transform from JSON.
+     *
+     * @param translation The translation component of the transformation as an array of 3 doubles.
+     * @param rotation    The rotation component of the transformation as an array of 4 doubles.
+     * @param scale       The scale component of the transformation as an array of 3 doubles.
+     */
     @JsonCreator
     public Transform(@JsonProperty("translation") double[] translation,
                      @JsonProperty("rotation") double[] rotation,
@@ -36,6 +61,13 @@ public class Transform {
         this.scale.setZ(scale[2]);
     }
 
+    /**
+     * Constructs a new Transform from the given translation and rotation.
+     * The scale component of the transformation is set to (1, 1, 1).
+     *
+     * @param translation The translation component of the transformation.
+     * @param rotation    The rotation component of the transformation.
+     */
     public Transform(Vec3 translation, Quaternion rotation) {
         this(translation, rotation, new Vec3(1, 1, 1));
     }

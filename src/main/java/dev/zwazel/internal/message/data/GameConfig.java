@@ -14,6 +14,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Represents the configuration of the game.
+ * Received when the game starts.
+ * Contains information about the game, the map, the clients, the teams, and the tanks.
+ *
+ * @param tickRate         the tick rate
+ * @param clientId         my client ID
+ * @param mapDefinition    the map definition, including the map configuration with all markers, like spawn points, flags, etc.
+ * @param connectedClients the connected clients, including their client ID, name, team, and TankType
+ * @param teamConfigs      the team configurations, including the team name and amount of players max
+ * @param tankConfigs      the tank configurations, including the tank type, speed, health, etc.
+ */
 @Builder
 public record GameConfig(long tickRate, long clientId, MapDefinition mapDefinition,
                          ConnectedClientConfig[] connectedClients,
