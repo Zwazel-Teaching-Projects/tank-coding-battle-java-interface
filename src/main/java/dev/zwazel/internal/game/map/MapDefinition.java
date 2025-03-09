@@ -45,10 +45,10 @@ public record MapDefinition(long width, long depth, SimplifiedRGB floorColor,
         }
 
         // Translate the index to the grid coordinates
-        int x = closestIndex % (int) width;
-        int y = closestIndex / (int) width;
+        int x = closestIndex / (int) width;
+        int y = closestIndex % (int) width;
 
-        return new Vec3(x, y, 0);
+        return getTile(x, y);
     }
 
     /**
@@ -74,7 +74,7 @@ public record MapDefinition(long width, long depth, SimplifiedRGB floorColor,
      * @return the world coordinate of the center of the tile
      */
     public Vec3 getWorldTileCenter(int x, int y) {
-        return new Vec3(x + TILE_SIZE / 2, tiles[x][y], y + TILE_SIZE / 2);
+        return new Vec3(x + TILE_SIZE / 2, tiles[y][x], y + TILE_SIZE / 2);
     }
 
     /**
@@ -92,11 +92,14 @@ public record MapDefinition(long width, long depth, SimplifiedRGB floorColor,
      * Returns the height of the tile at the given grid coordinates.
      *
      * @param pos the grid coordinates of the tile, not world coordinates!
+     *            The y coordinate is the height of the tile.
+     *            The y coordinate is ignored in this method.
+     *            The z coordinate of the given Vec3 is the y coordinate of the tile in the 2D map grid.
+     *            The x coordinate of the given Vec3 is the x coordinate of the tile in the 2D map grid.
      * @return the height of the tile
      */
     public float getTileHeight(Vec3 pos) {
-        Vec3 getTile = getTile(pos);
-        return getTileHeight((int) getTile.getX(), (int) getTile.getY());
+        return getTileHeight((int) pos.getX(), (int) pos.getZ());
     }
 
     /**
@@ -104,20 +107,29 @@ public record MapDefinition(long width, long depth, SimplifiedRGB floorColor,
      *
      * @param x the x coordinate of the tile in the map grid (0-indexed)
      * @param y the y coordinate of the tile in the map grid (0-indexed)
-     * @return the tile as a Vec3 in grid coordinates. the z is always 0, as this is a 2D map.
+     * @return the tile as a Vec3 in grid coordinates. the y is the height of the tile.
      */
     public Vec3 getTile(int x, int y) {
-        return new Vec3(x, y, 0);
+        // Check if the coordinates are valid
+        if (x < 0 || x >= width || y < 0 || y >= depth) {
+            throw new IllegalArgumentException("Invalid grid coordinates: (" + x + ", " + y + ")");
+        }
+
+        return new Vec3(x, tiles[y][x], y);
     }
 
     /**
      * Returns the tile at the given grid coordinates as a Vec3.
      *
      * @param pos the grid coordinates of the tile, not world coordinates!
-     * @return the tile as a Vec3 in grid coordinates. the z is always 0, as this is a 2D map.
+     *            The y coordinate is the height of the tile.
+     *            The y coordinate is ignored in this method.
+     *            The z coordinate of the given Vec3 is the y coordinate of the tile in the 2D map grid.
+     *            The x coordinate of the given Vec3 is the x coordinate of the tile in the 2D map grid.
+     * @return the tile as a Vec3 in grid coordinates. the y is always 0, as this is a 2D map.
      */
     public Vec3 getTile(Vec3 pos) {
-        return getTile((int) pos.getX(), (int) pos.getY());
+        return getTile((int) pos.getX(), (int) pos.getZ());
     }
 
     @Override
