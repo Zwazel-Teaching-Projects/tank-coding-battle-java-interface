@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import dev.zwazel.internal.InternalGameWorld;
 import dev.zwazel.internal.message.data.*;
+import dev.zwazel.internal.message.data.flag.FlagGotDropped;
+import dev.zwazel.internal.message.data.flag.FlagGotPickedUp;
+import dev.zwazel.internal.message.data.flag.FlagReturnedInBase;
 import dev.zwazel.internal.message.data.tank.*;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "message_type")
@@ -21,6 +24,12 @@ import dev.zwazel.internal.message.data.tank.*;
         @JsonSubTypes.Type(value = ShootCommand.class),
         @JsonSubTypes.Type(value = GotHit.class),
         @JsonSubTypes.Type(value = Hit.class),
+        @JsonSubTypes.Type(value = PlayerRespawned.class),
+        @JsonSubTypes.Type(value = PlayerDied.class),
+        @JsonSubTypes.Type(value = FlagGotDropped.class),
+        @JsonSubTypes.Type(value = FlagGotPickedUp.class),
+        @JsonSubTypes.Type(value = FlagReturnedInBase.class),
+        @JsonSubTypes.Type(value = TeamScored.class),
 })
 public interface MessageData {
     /**
