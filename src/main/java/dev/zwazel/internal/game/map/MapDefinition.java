@@ -15,7 +15,6 @@ public record MapDefinition(long width, long depth, SimplifiedRGB floorColor,
 
     /**
      * Returns the closest tile to the given world position.
-     * If the world position is inside a tile, that tile is returned.
      *
      * @param worldPos the world position
      * @return the closest tile to the world position, as a Vec3. The y in this case is always 0.
