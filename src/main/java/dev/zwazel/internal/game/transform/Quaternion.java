@@ -88,4 +88,12 @@ public class Quaternion {
     public Vec3 left() {
         return this.apply(Vec3.X.multiply(-1));
     }
+
+    public double getPitch() {
+        return Math.atan2(2 * (w * x + y * z), 1 - 2 * (x * x + y * y));
+    }
+
+    public double getYaw() {
+        return Math.atan2(2 * (w * z + x * y), 1 - 2 * (y * y + z * z));
+    }
 }
