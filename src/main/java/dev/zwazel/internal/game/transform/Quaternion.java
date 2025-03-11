@@ -90,7 +90,7 @@ public class Quaternion {
     }
 
     public double getPitch() {
-        return Math.asin(2 * (w * y - z * x));
+        return Math.atan2(2 * (w * x + y * z), 1 - 2 * (x * x + y * y));
     }
 
     public double getYaw() {
