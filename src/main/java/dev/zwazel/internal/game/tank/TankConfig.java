@@ -23,10 +23,12 @@ import java.util.HashMap;
  * @param armor                    the armor of the tank on each side (0-1, 0 = no armor, 1 = full armor)
  *                                 Damage is reduced by the armor value on the side that was hit
  *                                 calculated as: damage = damage * (1 - armor)
+ * @param respawnTimer             how many ticks the tank has to wait before respawning
+ * @param projectileGravity        how much the projectile is affected by gravity (if 0, no gravity)
  */
 public record TankConfig(float moveSpeed, float bodyRotationSpeed, float turretYawRotationSpeed,
                          float turretPitchRotationSpeed, float turretMaxPitch, float turretMinPitch, float maxSlope,
                          Vec3 size, Long shootCooldown, float projectileDamage, float projectileSpeed,
                          long projectileLifetime, Vec3 projectileSize, float maxHealth, HashMap<Side, Float> armor,
-                         long respawnTimer) {
+                         long respawnTimer, float projectileGravity) {
 }
