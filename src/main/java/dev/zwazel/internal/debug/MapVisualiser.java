@@ -2,12 +2,15 @@ package dev.zwazel.internal.debug;
 
 import dev.zwazel.internal.PublicGameWorld;
 import dev.zwazel.internal.game.map.MapDefinition;
+import dev.zwazel.internal.game.utils.Node;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.util.LinkedList;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -15,10 +18,7 @@ public class MapVisualiser extends JPanel {
     private final PublicGameWorld world;
     private final int CELL_SIZE = 50;
     private DrawingMode drawingMode = DrawingMode.HEIGHT;
-    /**
-     * A list of points to draw on the map. Used for drawing paths.
-     */
-    private ArrayList<Point> path = new ArrayList<>();
+    private LinkedList<Node> path = new LinkedList<>();
 
     public void showMap() {
         int width = ((int) world.getGameConfig().mapDefinition().width() + 1) * CELL_SIZE;
@@ -30,6 +30,17 @@ public class MapVisualiser extends JPanel {
         frame.getContentPane().add(this);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+
+        // Add key listener to switch drawing modes
+        frame.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                    toggleDrawingMode();
+
+                }
+            }
+        });
     }
 
     // Drawing the map
@@ -83,20 +94,45 @@ public class MapVisualiser extends JPanel {
     }
 
     private void drawPath(Graphics2D g2d, MapDefinition mapDefinition) {
-        // draw path, path is a list of points representing cells in the grid. Each point is a cell in the grid.
+        // Draw path, path is a list of points representing cells in the grid.
         // Draw line between each point in the path
         g2d.setColor(Color.RED);
         for (int i = 0; i < path.size() - 1; i++) {
-            Point p1 = path.get(i);
-            Point p2 = path.get(i + 1);
+            Node node1 = path.get(i);
+            Node node2 = path.get(i + 1);
             g2d.drawLine(
-                    p1.x * CELL_SIZE + CELL_SIZE / 2,
-                    p1.y * CELL_SIZE + CELL_SIZE / 2,
-                    p2.x * CELL_SIZE + CELL_SIZE / 2,
-                    p2.y * CELL_SIZE + CELL_SIZE / 2
+                    node1.getX() * CELL_SIZE + CELL_SIZE / 2,
+                    node1.getY() * CELL_SIZE + CELL_SIZE / 2,
+                    node2.getX() * CELL_SIZE + CELL_SIZE / 2,
+                    node2.getY() * CELL_SIZE + CELL_SIZE / 2
             );
         }
 
+        // Visualize start and end cells
+        if (!path.isEmpty()) {
+            Node startNode = path.getFirst();
+            Node endNode = path.getLast();
+
+            // Draw start cell in green
+            g2d.setColor(Color.GREEN);
+            g2d.fillRect(
+                    startNode.getX() * CELL_SIZE,
+                    startNode.getY() * CELL_SIZE,
+                    CELL_SIZE,
+                    CELL_SIZE
+            );
+
+            // Draw end cell in red
+            g2d.setColor(Color.RED);
+            g2d.fillRect(
+                    endNode.getX() * CELL_SIZE,
+                    endNode.getY() * CELL_SIZE,
+                    CELL_SIZE,
+                    CELL_SIZE
+            );
+        }
+
+        // Draw cell borders and costs
         drawCellBorders(g2d, mapDefinition);
     }
 
@@ -120,6 +156,14 @@ public class MapVisualiser extends JPanel {
                 );
             }
         }
+    }
+
+    private void toggleDrawingMode() {
+        DrawingMode[] modes = DrawingMode.values();
+        int currentIndex = drawingMode.ordinal();
+        int nextIndex = (currentIndex + 1) % modes.length;
+        drawingMode = modes[nextIndex];
+        repaint();
     }
 
     // Enum for switching drawing modes
