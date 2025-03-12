@@ -10,6 +10,7 @@ import dev.zwazel.internal.message.MessageData;
 import dev.zwazel.internal.message.data.GameConfig;
 import dev.zwazel.internal.message.data.GameState;
 
+import javax.swing.*;
 import java.util.List;
 import java.util.Optional;
 
@@ -147,4 +148,6 @@ public interface PublicGameWorld {
     default Optional<TankConfig> getTankConfig(TankType tankType) {
         return getGameConfig().getTankConfig(tankType);
     }
+
+    void registerVisualiser(JPanel panel);
 }

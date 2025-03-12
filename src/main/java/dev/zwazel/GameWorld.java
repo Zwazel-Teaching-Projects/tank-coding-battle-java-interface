@@ -5,6 +5,7 @@ import dev.zwazel.internal.GameSimulationThread;
 import dev.zwazel.internal.InternalGameWorld;
 import dev.zwazel.internal.PublicGameWorld;
 import dev.zwazel.internal.connection.ConnectionManager;
+import dev.zwazel.internal.debug.MapVisualiser;
 import dev.zwazel.internal.game.state.ClientState;
 import dev.zwazel.internal.game.tank.Tank;
 import dev.zwazel.internal.game.tank.TankFactory;
@@ -13,6 +14,7 @@ import dev.zwazel.internal.message.data.GameConfig;
 import dev.zwazel.internal.message.data.GameState;
 import dev.zwazel.internal.message.data.StartGameConfig;
 
+import javax.swing.*;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.List;
@@ -195,6 +197,11 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     @Override
     public List<MessageContainer> getIncomingMessages() {
         return List.copyOf(incomingMessages);
+    }
+
+    @Override
+    public void registerVisualiser(JPanel panel) {
+        this.simulationThread.setMapVisualiser(panel);
     }
 
     @Override
