@@ -192,11 +192,6 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     @Override
     public void setGameConfig(GameConfig gameConfig) {
         this.gameConfig = gameConfig;
-
-        if (isDebug()) {
-            MapVisualiser visualiser = new MapVisualiser(this);
-            visualiser.showMap();
-        }
     }
 
     @Override
