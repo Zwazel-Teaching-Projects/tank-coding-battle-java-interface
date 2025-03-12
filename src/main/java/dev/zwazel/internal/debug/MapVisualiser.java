@@ -1,6 +1,7 @@
 package dev.zwazel.internal.debug;
 
 import dev.zwazel.internal.InternalGameWorld;
+import dev.zwazel.internal.PublicGameWorld;
 import dev.zwazel.internal.game.map.MapDefinition;
 import lombok.RequiredArgsConstructor;
 
@@ -9,13 +10,13 @@ import java.awt.*;
 
 @RequiredArgsConstructor
 public class MapVisualiser extends JPanel {
-    private final InternalGameWorld world;
+    private final PublicGameWorld world;
 
     private final int CELL_SIZE = 50;
 
     public void showMap() {
-        int width = ((int) world.getPublicGameWorld().getGameConfig().mapDefinition().width() + 1) * CELL_SIZE;
-        int height = ((int) world.getPublicGameWorld().getGameConfig().mapDefinition().depth() + 1) * CELL_SIZE;
+        int width = ((int) world.getGameConfig().mapDefinition().width() + 1) * CELL_SIZE;
+        int height = ((int) world.getGameConfig().mapDefinition().depth() + 1) * CELL_SIZE;
 
         JFrame frame = new JFrame("Map Visualiser");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -30,7 +31,7 @@ public class MapVisualiser extends JPanel {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
-        MapDefinition mapDefinition = world.getPublicGameWorld().getGameConfig().mapDefinition();
+        MapDefinition mapDefinition = world.getGameConfig().mapDefinition();
 
         // Determine min and max heights to normalize cell colors
         float min = Float.MAX_VALUE;
