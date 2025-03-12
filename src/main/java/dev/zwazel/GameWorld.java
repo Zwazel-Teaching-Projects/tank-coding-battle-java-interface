@@ -200,6 +200,11 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
     }
 
     @Override
+    public void registerVisualiser(JPanel panel) {
+        this.simulationThread.setMapVisualiser(panel);
+    }
+
+    @Override
     public void stop() {
         running = false;
         connection.disconnect();

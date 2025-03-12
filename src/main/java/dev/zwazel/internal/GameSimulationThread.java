@@ -6,7 +6,9 @@ import dev.zwazel.internal.message.MessageContainer;
 import dev.zwazel.internal.message.data.GameConfig;
 import dev.zwazel.internal.message.data.GameState;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
+import javax.swing.*;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -20,6 +22,8 @@ public class GameSimulationThread implements Runnable {
     private final DataOutputStream output;
     private final ObjectMapper objectMapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
     private boolean ranSetup = false;
+    @Setter
+    private JPanel mapVisualiser;
 
     @Override
     public void run() {
@@ -43,6 +47,10 @@ public class GameSimulationThread implements Runnable {
                 if (state != null && state.tick() > currentTickToProcess) {
                     // Process the next tick
                     currentTickToProcess = state.tick();
+                    // Update the map visualiser
+                    if (mapVisualiser != null) {
+                        mapVisualiser.repaint();
+                    }
 
                     // Remove any message from the queue that is older than the current tick
                     long finalCurrentTickToProcess = currentTickToProcess;

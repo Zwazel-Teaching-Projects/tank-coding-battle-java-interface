@@ -2,6 +2,7 @@ package dev.zwazel.internal.debug;
 
 import dev.zwazel.internal.PublicGameWorld;
 import dev.zwazel.internal.game.map.MapDefinition;
+import dev.zwazel.internal.game.transform.Vec3;
 import dev.zwazel.internal.game.utils.Node;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -37,7 +38,6 @@ public class MapVisualiser extends JPanel {
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_SPACE) {
                     toggleDrawingMode();
-
                 }
             }
         });
@@ -50,11 +50,37 @@ public class MapVisualiser extends JPanel {
         Graphics2D g2d = (Graphics2D) g;
         MapDefinition mapDefinition = world.getGameConfig().mapDefinition();
 
-        // Switch drawing mode
         switch (drawingMode) {
             case HEIGHT -> drawHeightMap(g2d, mapDefinition);
             case PATH -> drawPath(g2d, mapDefinition);
         }
+
+        // Draw cell borders
+        drawCellBorders(g2d, mapDefinition);
+
+        // Draw location of my tank (drawing the cell blue, and the actual position as a point)
+        Vec3 myPosition = world.getMyState().transformBody().getTranslation();
+        Vec3 closestTile = mapDefinition.getClosestTileFromWorld(myPosition);
+
+        g2d.setColor(Color.BLUE);
+        g2d.fillRect(
+                (int) closestTile.getX() * CELL_SIZE,
+                (int) closestTile.getZ() * CELL_SIZE,
+                CELL_SIZE,
+                CELL_SIZE
+        );
+
+        // Turn the position from float to int, so it can be drawn. from units to pixels
+        int x = (int) (myPosition.getX() * CELL_SIZE);
+        int y = (int) (myPosition.getZ() * CELL_SIZE);
+
+        g2d.setColor(Color.ORANGE);
+        g2d.fillOval(
+                x,
+                y,
+                15,
+                15
+        );
     }
 
     private void drawHeightMap(Graphics2D g2d, MapDefinition mapDefinition) {
@@ -87,10 +113,15 @@ public class MapVisualiser extends JPanel {
                         CELL_SIZE,
                         CELL_SIZE
                 );
+                // Draw the height value in the cell
+                g2d.setColor(Color.BLACK);
+                g2d.drawString(
+                        String.format("%.2f", tileHeight),
+                        x * CELL_SIZE + 5,
+                        y * CELL_SIZE + 15
+                );
             }
         }
-
-        drawCellBorders(g2d, mapDefinition);
     }
 
     private void drawPath(Graphics2D g2d, MapDefinition mapDefinition) {
@@ -105,6 +136,16 @@ public class MapVisualiser extends JPanel {
                     node1.getY() * CELL_SIZE + CELL_SIZE / 2,
                     node2.getX() * CELL_SIZE + CELL_SIZE / 2,
                     node2.getY() * CELL_SIZE + CELL_SIZE / 2
+            );
+        }
+
+        // Go through all nodes, drawing their costs
+        for (Node node : path) {
+            g2d.setColor(Color.BLACK);
+            g2d.drawString(
+                    String.format("%.2f", node.getCost()),
+                    node.getX() * CELL_SIZE + 5,
+                    node.getY() * CELL_SIZE + 15
             );
         }
 
@@ -131,9 +172,6 @@ public class MapVisualiser extends JPanel {
                     CELL_SIZE
             );
         }
-
-        // Draw cell borders and costs
-        drawCellBorders(g2d, mapDefinition);
     }
 
     private void drawCellBorders(Graphics2D g2d, MapDefinition mapDefinition) {
@@ -146,13 +184,6 @@ public class MapVisualiser extends JPanel {
                         y * CELL_SIZE,
                         CELL_SIZE,
                         CELL_SIZE
-                );
-                // Draw the height value in the cell
-                g2d.setColor(Color.BLACK);
-                g2d.drawString(
-                        String.format("%.2f", mapDefinition.tiles()[y][x]),
-                        x * CELL_SIZE + 5,
-                        y * CELL_SIZE + 15
                 );
             }
         }
