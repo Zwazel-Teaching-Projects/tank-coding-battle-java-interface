@@ -190,15 +190,16 @@ public class MapVisualiser extends JPanel {
         );
 
         // Turn the position from float to int, so it can be drawn. from units to pixels
-        int x = (int) (myPosition.getX() * CELL_SIZE);
-        int y = (int) (myPosition.getZ() * CELL_SIZE);
+        int ovaLSize = 15;
+        int x = (int) (myPosition.getX() * CELL_SIZE) - ovaLSize / 2;
+        int y = (int) (myPosition.getZ() * CELL_SIZE) - ovaLSize / 2;
 
         g2d.setColor(Color.ORANGE);
         g2d.fillOval(
                 x,
                 y,
-                15,
-                15
+                ovaLSize,
+                ovaLSize
         );
     }
 
