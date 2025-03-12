@@ -57,30 +57,6 @@ public class MapVisualiser extends JPanel {
 
         // Draw cell borders
         drawCellBorders(g2d, mapDefinition);
-
-        // Draw location of my tank (drawing the cell blue, and the actual position as a point)
-        Vec3 myPosition = world.getMyState().transformBody().getTranslation();
-        Vec3 closestTile = mapDefinition.getClosestTileFromWorld(myPosition);
-
-        g2d.setColor(Color.BLUE);
-        g2d.fillRect(
-                (int) closestTile.getX() * CELL_SIZE,
-                (int) closestTile.getZ() * CELL_SIZE,
-                CELL_SIZE,
-                CELL_SIZE
-        );
-
-        // Turn the position from float to int, so it can be drawn. from units to pixels
-        int x = (int) (myPosition.getX() * CELL_SIZE);
-        int y = (int) (myPosition.getZ() * CELL_SIZE);
-
-        g2d.setColor(Color.ORANGE);
-        g2d.fillOval(
-                x,
-                y,
-                15,
-                15
-        );
     }
 
     private void drawHeightMap(Graphics2D g2d, MapDefinition mapDefinition) {
@@ -99,7 +75,7 @@ public class MapVisualiser extends JPanel {
             }
         }
 
-        // Draw each cell with a color gradient based on its height.
+        // First Pass: Draw each cell with a color gradient based on its height.
         for (int x = 0; x < mapDefinition.width(); x++) {
             for (int y = 0; y < mapDefinition.depth(); y++) {
                 float tileHeight = mapDefinition.tiles()[y][x];
@@ -113,7 +89,16 @@ public class MapVisualiser extends JPanel {
                         CELL_SIZE,
                         CELL_SIZE
                 );
-                // Draw the height value in the cell
+            }
+        }
+
+        // Second Pass: Draw tank
+        drawTank(g2d, world);
+
+        // Third Pass: Draw heights
+        for (int x = 0; x < mapDefinition.width(); x++) {
+            for (int y = 0; y < mapDefinition.depth(); y++) {
+                float tileHeight = mapDefinition.tiles()[y][x];
                 g2d.setColor(Color.BLACK);
                 g2d.drawString(
                         String.format("%.2f", tileHeight),
@@ -125,31 +110,10 @@ public class MapVisualiser extends JPanel {
     }
 
     private void drawPath(Graphics2D g2d, MapDefinition mapDefinition) {
-        // Draw path, path is a list of points representing cells in the grid.
-        // Draw line between each point in the path
-        g2d.setColor(Color.RED);
-        for (int i = 0; i < path.size() - 1; i++) {
-            Node node1 = path.get(i);
-            Node node2 = path.get(i + 1);
-            g2d.drawLine(
-                    node1.getX() * CELL_SIZE + CELL_SIZE / 2,
-                    node1.getY() * CELL_SIZE + CELL_SIZE / 2,
-                    node2.getX() * CELL_SIZE + CELL_SIZE / 2,
-                    node2.getY() * CELL_SIZE + CELL_SIZE / 2
-            );
-        }
+        // First pass: Draw Tank
+        drawTank(g2d, world);
 
-        // Go through all nodes, drawing their costs
-        for (Node node : path) {
-            g2d.setColor(Color.BLACK);
-            g2d.drawString(
-                    String.format("%.2f", node.getCost()),
-                    node.getX() * CELL_SIZE + 5,
-                    node.getY() * CELL_SIZE + 15
-            );
-        }
-
-        // Visualize start and end cells
+        // Second pass: Draw start and end cells
         if (!path.isEmpty()) {
             Node startNode = path.getFirst();
             Node endNode = path.getLast();
@@ -172,6 +136,29 @@ public class MapVisualiser extends JPanel {
                     CELL_SIZE
             );
         }
+
+        // Third pass: Draw Path
+        g2d.setColor(Color.RED);
+        for (int i = 0; i < path.size() - 1; i++) {
+            Node node1 = path.get(i);
+            Node node2 = path.get(i + 1);
+            g2d.drawLine(
+                    node1.getX() * CELL_SIZE + CELL_SIZE / 2,
+                    node1.getY() * CELL_SIZE + CELL_SIZE / 2,
+                    node2.getX() * CELL_SIZE + CELL_SIZE / 2,
+                    node2.getY() * CELL_SIZE + CELL_SIZE / 2
+            );
+        }
+
+        // Fourth pass: Draw costs
+        for (Node node : path) {
+            g2d.setColor(Color.BLACK);
+            g2d.drawString(
+                    String.format("%.2f", node.getCost()),
+                    node.getX() * CELL_SIZE + 5,
+                    node.getY() * CELL_SIZE + 15
+            );
+        }
     }
 
     private void drawCellBorders(Graphics2D g2d, MapDefinition mapDefinition) {
@@ -187,6 +174,32 @@ public class MapVisualiser extends JPanel {
                 );
             }
         }
+    }
+
+    private void drawTank(Graphics2D g2d, PublicGameWorld world) {
+        // Draw location of my tank (drawing the cell blue, and the actual position as a point)
+        Vec3 myPosition = world.getMyState().transformBody().getTranslation();
+        Vec3 closestTile = world.getGameConfig().mapDefinition().getClosestTileFromWorld(myPosition);
+
+        g2d.setColor(Color.BLUE);
+        g2d.fillRect(
+                (int) closestTile.getX() * CELL_SIZE,
+                (int) closestTile.getZ() * CELL_SIZE,
+                CELL_SIZE,
+                CELL_SIZE
+        );
+
+        // Turn the position from float to int, so it can be drawn. from units to pixels
+        int x = (int) (myPosition.getX() * CELL_SIZE);
+        int y = (int) (myPosition.getZ() * CELL_SIZE);
+
+        g2d.setColor(Color.ORANGE);
+        g2d.fillOval(
+                x,
+                y,
+                15,
+                15
+        );
     }
 
     private void toggleDrawingMode() {
