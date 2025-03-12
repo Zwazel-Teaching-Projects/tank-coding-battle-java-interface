@@ -74,18 +74,19 @@ public interface Tank {
         double currentYaw = currentForward.getAngle();
         double desiredYaw = horizontalToTarget.getAngle();
         double deltaYaw = Math.atan2(Math.sin(desiredYaw - currentYaw), Math.cos(desiredYaw - currentYaw));
+        double distanceToTarget = targetPosition.distance(currentPos);
 
         // If we move simultaneously, rotate and move in this call
         if (simultaneous) {
             rotateBody(world, deltaYaw);
-            move(world, moveDirection);
+            move(world, moveDirection, distanceToTarget);
         } else {
             // Only move if we're facing mostly toward the target
             double angleThreshold = 0.1; // adjust as needed
             if (Math.abs(deltaYaw) > angleThreshold) {
                 rotateBody(world, deltaYaw);
             } else {
-                move(world, moveDirection);
+                move(world, moveDirection, distanceToTarget);
             }
         }
     }
