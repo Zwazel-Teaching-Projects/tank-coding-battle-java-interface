@@ -3,6 +3,7 @@ package dev.zwazel.internal.debug;
 import dev.zwazel.internal.PublicGameWorld;
 import dev.zwazel.internal.game.map.MapDefinition;
 import dev.zwazel.internal.game.transform.Vec3;
+import dev.zwazel.internal.game.utils.Graph;
 import dev.zwazel.internal.game.utils.Node;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,6 +21,7 @@ public class MapVisualiser extends JPanel {
     private final int CELL_SIZE = 50;
     private DrawingMode drawingMode = DrawingMode.HEIGHT;
     private LinkedList<Node> path = new LinkedList<>();
+    private Graph graph;
 
     public void showMap() {
         int width = ((int) world.getGameConfig().mapDefinition().width() + 1) * CELL_SIZE;
@@ -151,13 +153,23 @@ public class MapVisualiser extends JPanel {
         }
 
         // Fourth pass: Draw costs
-        for (Node node : path) {
-            g2d.setColor(Color.BLACK);
-            g2d.drawString(
-                    String.format("%.2f", node.getCost()),
-                    node.getX() * CELL_SIZE + 5,
-                    node.getY() * CELL_SIZE + 15
-            );
+        if (graph == null) {
+            return;
+        }
+        for (Node[] row : graph.getNodes()) {
+            for (Node node : row) {
+                String cost = String.format("%.2f", node.getCost());
+                if (node.getCost() == Double.MAX_VALUE) {
+                    cost = "∞";
+                }
+
+                g2d.setColor(Color.BLACK);
+                g2d.drawString(
+                        cost,
+                        node.getX() * CELL_SIZE + 5,
+                        node.getY() * CELL_SIZE + 15
+                );
+            }
         }
     }
 
