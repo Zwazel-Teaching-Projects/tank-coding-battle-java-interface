@@ -2,7 +2,6 @@ package dev.zwazel.internal.game.map;
 
 import dev.zwazel.internal.game.misc.SimplifiedRGB;
 import dev.zwazel.internal.game.transform.Vec3;
-import lombok.NonNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,35 +24,29 @@ public record MapDefinition(long width, long depth, SimplifiedRGB floorColor,
      * @param worldPos the world position
      * @return the closest tile to the world position, as a Vec3.
      */
-    public Vec3 getClosestTileFromWorld(@NonNull Vec3 worldPos) {
+    public Vec3 getClosestTileFromWorld(Vec3 worldPos) {
         if (worldPos.getY() < 0) {
             throw new IllegalArgumentException("Y coordinate of the world position must be positive");
         }
 
-        ArrayList<Vec3> grid = gridToWorld();
+        double minDistance = Double.POSITIVE_INFINITY;
         Vec3 closest = null;
-        int closestIndex = -1;
 
-        for (int i = 0; i < grid.size(); i++) {
-            Vec3 tile = grid.get(i);
+        for (Vec3 tile : gridToWorld()) {
             double distance = tile.distance(worldPos);
 
             if (distance < TILE_SIZE / 2) {
-                closestIndex = i;
-                break;
+                return getTile((int) tile.getX(), (int) tile.getZ());
             }
 
-            if (closest == null || distance < closest.distance(worldPos)) {
+            if (distance < minDistance) {
+                minDistance = distance;
                 closest = tile;
-                closestIndex = i;
             }
         }
 
-        // Translate the index to the grid coordinates
-        int x = closestIndex / (int) width;
-        int y = closestIndex % (int) width;
-
-        return getTile(x, y);
+        assert closest != null;
+        return getTile((int) closest.getX(), (int) closest.getZ());
     }
 
     /**
@@ -63,9 +56,9 @@ public record MapDefinition(long width, long depth, SimplifiedRGB floorColor,
      */
     public ArrayList<Vec3> gridToWorld() {
         ArrayList<Vec3> grid = new ArrayList<>();
-        for (int x = 0; x < width; x++) {
-            for (int z = 0; z < depth; z++) {
-                grid.add(getWorldTileCenter(x, z));
+        for (int y = 0; y < depth; y++) {
+            for (int x = 0; x < width; x++) {
+                grid.add(getWorldTileCenter(x, y));
             }
         }
         return grid;
@@ -79,7 +72,7 @@ public record MapDefinition(long width, long depth, SimplifiedRGB floorColor,
      * @return the world coordinate of the center of the tile
      */
     public Vec3 getWorldTileCenter(int x, int y) {
-        return new Vec3(x + TILE_SIZE / 2, tiles[y][x], y + TILE_SIZE / 2);
+        return new Vec3(x + 0.5f, getTileHeight(x, y), y + 0.5f);
     }
 
     /**
@@ -90,7 +83,7 @@ public record MapDefinition(long width, long depth, SimplifiedRGB floorColor,
      * @return the height of the tile
      */
     public float getTileHeight(int x, int y) {
-        return tiles[x][y];
+        return tiles[y][x];
     }
 
     /**
@@ -120,7 +113,7 @@ public record MapDefinition(long width, long depth, SimplifiedRGB floorColor,
             throw new IllegalArgumentException("Invalid grid coordinates: (" + x + ", " + y + ")");
         }
 
-        return new Vec3(x, tiles[y][x], y);
+        return new Vec3(x, getTileHeight(x, y), y);
     }
 
     /**
