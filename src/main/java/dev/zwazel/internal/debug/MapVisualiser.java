@@ -18,7 +18,7 @@ import java.util.LinkedList;
 @Data
 public class MapVisualiser extends JPanel {
     private final PublicGameWorld world;
-    private final int CELL_SIZE = 50;
+    private int CELL_SIZE = 50; // Will be scaled by the map size, to fit the window
     private DrawingMode drawingMode = DrawingMode.HEIGHT;
     private LinkedList<Node> path = new LinkedList<>();
     private Graph graph;
@@ -26,6 +26,13 @@ public class MapVisualiser extends JPanel {
     public void showMap() {
         int width = ((int) world.getGameConfig().mapDefinition().width() + 1) * CELL_SIZE;
         int height = ((int) world.getGameConfig().mapDefinition().depth() + 1) * CELL_SIZE;
+
+        // scale down cell_size until we don't go over the max window size (1000x1000)
+        while (width > 1000 || height > 1000) {
+            CELL_SIZE--;
+            width = ((int) world.getGameConfig().mapDefinition().width() + 1) * CELL_SIZE;
+            height = ((int) world.getGameConfig().mapDefinition().depth() + 1) * CELL_SIZE;
+        }
 
         JFrame frame = new JFrame("Map Visualiser");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
