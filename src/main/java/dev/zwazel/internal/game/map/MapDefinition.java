@@ -29,25 +29,19 @@ public record MapDefinition(long width, long depth, SimplifiedRGB floorColor,
             throw new IllegalArgumentException("Y coordinate of the world position must be positive");
         }
 
-        ArrayList<Vec3> grid = gridToWorld();
+        double minDistance = Double.POSITIVE_INFINITY;
         Vec3 closest = null;
-        int closestX = -1;
-        int closestY = -1;
 
-        for (Vec3 tile : grid) {
-            double distance = Math.abs(tile.getX() - worldPos.getX()) + Math.abs(tile.getZ() - worldPos.getZ());
+        for (Vec3 tile : gridToWorld()) {
+            double distance = tile.distance(worldPos);
 
             if (distance < TILE_SIZE / 2) {
-                closestX = (int) tile.getX();
-                closestY = (int) tile.getZ();
-                break;
+                return getTile((int) tile.getX(), (int) tile.getZ());
             }
 
-            if (closest == null) {
+            if (distance < minDistance) {
+                minDistance = distance;
                 closest = tile;
-                closestX = (int) tile.getX();
-                closestY = (int) tile.getZ();
-                continue;
             }
 
             double closestDistance = Math.abs(closest.getX() - worldPos.getX()) + Math.abs(closest.getZ() - worldPos.getZ());
@@ -58,7 +52,8 @@ public record MapDefinition(long width, long depth, SimplifiedRGB floorColor,
             }
         }
 
-        return getTile(closestX, closestY);
+        assert closest != null;
+        return getTile((int) closest.getX(), (int) closest.getZ());
     }
 
     /**
