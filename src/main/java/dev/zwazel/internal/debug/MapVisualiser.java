@@ -112,10 +112,7 @@ public class MapVisualiser extends JPanel {
     }
 
     private void drawPath(Graphics2D g2d, MapDefinition mapDefinition) {
-        // First pass: Draw Tank
-        drawTank(g2d, world);
-
-        // Second pass: Draw start and end cells
+        // First pass: Draw start and end cells
         if (!path.isEmpty()) {
             Node startNode = path.getFirst();
             Node endNode = path.getLast();
@@ -138,6 +135,9 @@ public class MapVisualiser extends JPanel {
                     CELL_SIZE
             );
         }
+
+        // Second pass: Draw Tank
+        drawTank(g2d, world);
 
         // Third pass: Draw Path
         g2d.setColor(Color.RED);
