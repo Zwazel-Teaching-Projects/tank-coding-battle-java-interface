@@ -97,7 +97,7 @@ public class MapVisualiser extends JPanel {
             int x = (int) (tankPos.getX() * CELL_SIZE) - TANK_RADIUS / 2;
             int y = (int) (tankPos.getZ() * CELL_SIZE) - TANK_RADIUS / 2;
 
-            g2d.setColor(Color.BLUE);
+            g2d.setColor(Color.YELLOW);
             g2d.fillOval(
                     x,
                     y,
@@ -131,7 +131,7 @@ public class MapVisualiser extends JPanel {
             int x = (int) (flagBasePos.getX() * CELL_SIZE) - FLAG_BASE_RADIUS / 2;
             int y = (int) (flagBasePos.getZ() * CELL_SIZE) - FLAG_BASE_RADIUS / 2;
 
-            g2d.setColor(Color.YELLOW);
+            g2d.setColor(Color.CYAN);
             g2d.fillOval(
                     x,
                     y,
@@ -257,6 +257,8 @@ public class MapVisualiser extends JPanel {
 
         // Fourth pass: Draw costs
         if (graph == null) {
+            // Fifth pass: Draw cell borders
+            drawCellBorders(g2d, mapDefinition);
             return;
         }
         for (Node[] row : graph.getNodes()) {
