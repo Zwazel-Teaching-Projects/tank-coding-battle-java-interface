@@ -2,9 +2,14 @@ package dev.zwazel.internal.debug;
 
 import dev.zwazel.internal.PublicGameWorld;
 import dev.zwazel.internal.game.map.MapDefinition;
+import dev.zwazel.internal.game.state.ClientState;
+import dev.zwazel.internal.game.state.FlagBaseState;
+import dev.zwazel.internal.game.state.FlagGameState;
+import dev.zwazel.internal.game.state.ProjectileState;
 import dev.zwazel.internal.game.transform.Vec3;
 import dev.zwazel.internal.game.utils.Graph;
 import dev.zwazel.internal.game.utils.Node;
+import dev.zwazel.internal.message.data.GameState;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -13,22 +18,29 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.LinkedList;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class MapVisualiser extends JPanel {
     private final PublicGameWorld world;
+    private final int TANK_RADIUS = 25;
+    private final int PROJECTILE_RADIUS = 5;
+    private final int FLAG_RADIUS = 10;
+    private final int FLAG_BASE_RADIUS = 20;
     private int CELL_SIZE = 50; // Will be scaled by the map size, to fit the window
     private DrawingMode drawingMode = DrawingMode.HEIGHT;
     private LinkedList<Node> path = new LinkedList<>();
     private Graph graph;
+    private int maxWindowWidth = 1000;
+    private int maxWindowHeight = 1000;
 
     public void showMap() {
         int width = ((int) world.getGameConfig().mapDefinition().width() + 1) * CELL_SIZE;
         int height = ((int) world.getGameConfig().mapDefinition().depth() + 1) * CELL_SIZE;
 
         // scale down cell_size until we don't go over the max window size (1000x1000)
-        while (width > 1000 || height > 1000) {
+        while (width > maxWindowWidth || height > maxWindowHeight) {
             CELL_SIZE--;
             width = ((int) world.getGameConfig().mapDefinition().width() + 1) * CELL_SIZE;
             height = ((int) world.getGameConfig().mapDefinition().depth() + 1) * CELL_SIZE;
@@ -39,6 +51,7 @@ public class MapVisualiser extends JPanel {
         frame.setSize(width, height);
         frame.getContentPane().add(this);
         frame.setLocationRelativeTo(null);
+        frame.setResizable(false);
         frame.setVisible(true);
 
         // Add key listener to switch drawing modes
@@ -62,9 +75,89 @@ public class MapVisualiser extends JPanel {
         switch (drawingMode) {
             case HEIGHT -> drawHeightMap(g2d, mapDefinition);
             case PATH -> drawPath(g2d, mapDefinition);
+            case ENTITIES -> drawEntities(g2d, mapDefinition);
+        }
+    }
+
+    private void drawEntities(Graphics2D g2d, MapDefinition mapDefinition) {
+        // We need to collect all states of the different types of entities
+        // tanks, projectiles, flags, flagbases
+        // and draw them on the map
+        GameState currentState = world.getGameState();
+        List<ClientState> tankStates = currentState.clientStates().values().stream().toList();
+        List<ProjectileState> projectileStates = currentState.projectileStates().values().stream().toList();
+        List<FlagGameState> flagStates = currentState.flagStates().values().stream().toList();
+        List<FlagBaseState> flagBaseStates = currentState.flagBaseStates().values().stream().toList();
+
+        // First pass: Draw all tanks, as a blue circle
+        for (ClientState tankState : tankStates) {
+            Vec3 tankPos = tankState.transformBody().getTranslation();
+
+            // Turn the position from float to int, so it can be drawn. from units to pixels
+            int x = (int) (tankPos.getX() * CELL_SIZE) - TANK_RADIUS / 2;
+            int y = (int) (tankPos.getZ() * CELL_SIZE) - TANK_RADIUS / 2;
+
+            g2d.setColor(Color.BLUE);
+            g2d.fillOval(
+                    x,
+                    y,
+                    TANK_RADIUS,
+                    TANK_RADIUS
+            );
         }
 
-        // Draw cell borders
+        // Second pass: Draw all projectiles, as a red circle
+        for (ProjectileState projectileState : projectileStates) {
+            Vec3 projectilePos = projectileState.transform().getTranslation();
+
+            // Turn the position from float to int, so it can be drawn. from units to pixels
+            int x = (int) (projectilePos.getX() * CELL_SIZE) - PROJECTILE_RADIUS / 2;
+            int y = (int) (projectilePos.getZ() * CELL_SIZE) - PROJECTILE_RADIUS / 2;
+
+            g2d.setColor(Color.RED);
+            g2d.fillOval(
+                    x,
+                    y,
+                    PROJECTILE_RADIUS,
+                    PROJECTILE_RADIUS
+            );
+        }
+
+        // Third pass: Draw all flag bases, as a yellow circle
+        for (FlagBaseState flagBaseState : flagBaseStates) {
+            Vec3 flagBasePos = flagBaseState.transform().getTranslation();
+
+            // Turn the position from float to int, so it can be drawn. from units to pixels
+            int x = (int) (flagBasePos.getX() * CELL_SIZE) - FLAG_BASE_RADIUS / 2;
+            int y = (int) (flagBasePos.getZ() * CELL_SIZE) - FLAG_BASE_RADIUS / 2;
+
+            g2d.setColor(Color.YELLOW);
+            g2d.fillOval(
+                    x,
+                    y,
+                    FLAG_BASE_RADIUS,
+                    FLAG_BASE_RADIUS
+            );
+        }
+
+        // Fourth pass: Draw all flags, as a green circle
+        for (FlagGameState flagState : flagStates) {
+            Vec3 flagPos = flagState.transform().getTranslation();
+
+            // Turn the position from float to int, so it can be drawn. from units to pixels
+            int x = (int) (flagPos.getX() * CELL_SIZE) - FLAG_RADIUS / 2;
+            int y = (int) (flagPos.getZ() * CELL_SIZE) - FLAG_RADIUS / 2;
+
+            g2d.setColor(Color.GREEN);
+            g2d.fillOval(
+                    x,
+                    y,
+                    FLAG_RADIUS,
+                    FLAG_RADIUS
+            );
+        }
+
+        // Fifth pass: Draw cell borders
         drawCellBorders(g2d, mapDefinition);
     }
 
@@ -116,6 +209,9 @@ public class MapVisualiser extends JPanel {
                 );
             }
         }
+
+        // Fourth Pass: Draw cell borders
+        drawCellBorders(g2d, mapDefinition);
     }
 
     private void drawPath(Graphics2D g2d, MapDefinition mapDefinition) {
@@ -178,6 +274,9 @@ public class MapVisualiser extends JPanel {
                 );
             }
         }
+
+        // Fifth pass: Draw cell borders
+        drawCellBorders(g2d, mapDefinition);
     }
 
     private void drawCellBorders(Graphics2D g2d, MapDefinition mapDefinition) {
@@ -209,16 +308,15 @@ public class MapVisualiser extends JPanel {
         );
 
         // Turn the position from float to int, so it can be drawn. from units to pixels
-        int ovaLSize = 15;
-        int x = (int) (myPosition.getX() * CELL_SIZE) - ovaLSize / 2;
-        int y = (int) (myPosition.getZ() * CELL_SIZE) - ovaLSize / 2;
+        int x = (int) (myPosition.getX() * CELL_SIZE) - TANK_RADIUS / 2;
+        int y = (int) (myPosition.getZ() * CELL_SIZE) - TANK_RADIUS / 2;
 
         g2d.setColor(Color.ORANGE);
         g2d.fillOval(
                 x,
                 y,
-                ovaLSize,
-                ovaLSize
+                TANK_RADIUS,
+                TANK_RADIUS
         );
     }
 
@@ -233,6 +331,7 @@ public class MapVisualiser extends JPanel {
     // Enum for switching drawing modes
     public enum DrawingMode {
         HEIGHT,
-        PATH
+        PATH,
+        ENTITIES,
     }
 }
