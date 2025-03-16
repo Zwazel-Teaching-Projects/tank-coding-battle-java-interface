@@ -5,7 +5,6 @@ import dev.zwazel.internal.GameSimulationThread;
 import dev.zwazel.internal.InternalGameWorld;
 import dev.zwazel.internal.PublicGameWorld;
 import dev.zwazel.internal.connection.ConnectionManager;
-import dev.zwazel.internal.debug.MapVisualiser;
 import dev.zwazel.internal.game.state.ClientState;
 import dev.zwazel.internal.game.tank.Tank;
 import dev.zwazel.internal.game.tank.TankFactory;
@@ -26,16 +25,16 @@ import static dev.zwazel.internal.message.MessageTarget.Type.TO_LOBBY_DIRECTLY;
 public class GameWorld implements InternalGameWorld, PublicGameWorld {
     private static GameWorld instance;
 
-    private final PropertyHandler properties = PropertyHandler.getInstance();
     private final BlockingQueue<MessageContainer> incomingMessages = new LinkedBlockingQueue<>();
     private final BlockingQueue<MessageContainer> outgoingMessages = new LinkedBlockingQueue<>();
-    private final DebugMode debug;
+    private DebugMode debug;
     private boolean immediatelyStartGame;
     private ConnectionManager connection;
     private GameState gameState;
     private BotInterface bot;
     private Tank tank;
     private GameConfig gameConfig;
+
     /**
      * The predicted state of the client.
      * Resets every tick.
@@ -48,13 +47,12 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
 
     private GameWorld() {
         // Private constructor to prevent instantiation
-        this.debug = DebugMode.valueOf(this.properties.getProperty("debug.mode").toUpperCase());
     }
 
-    public static boolean startGame(BotInterface bot, Class<? extends Tank> tankClass) {
+    public static boolean startGame(BotInterface bot) {
         GameWorld gameWorld = GameWorld.getInstance();
-        gameWorld.setup(bot, tankClass, true);
-        if (gameWorld.connect(true)) {
+        gameWorld.setup(bot, true);
+        if (gameWorld.connect()) {
             return true;
         } else {
             System.err.println("Failed to start the game world due to connection issues.");
@@ -62,10 +60,10 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
         }
     }
 
-    public static boolean connectToServer(BotInterface bot, Class<? extends Tank> tankClass) {
+    public static boolean connectToServer(BotInterface bot) {
         GameWorld gameWorld = GameWorld.getInstance();
-        gameWorld.setup(bot, tankClass, false);
-        return gameWorld.connect(false);
+        gameWorld.setup(bot, false);
+        return gameWorld.connect();
     }
 
     private static GameWorld getInstance() {
@@ -76,19 +74,20 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
         return instance;
     }
 
-    private void setup(BotInterface bot, Class<? extends Tank> tankClass, boolean immediatelyStartGame) {
+    private void setup(BotInterface bot, boolean immediatelyStartGame) {
         this.bot = bot;
-        this.tank = TankFactory.createTank(tankClass);
+        this.debug = bot.getLocalBotConfig().debugMode().orElse(DebugMode.NONE);
+        this.tank = TankFactory.createTank(bot.getLocalBotConfig().tankType());
         this.immediatelyStartGame = immediatelyStartGame;
     }
 
-    private boolean connect(boolean immediatelyStartGame) {
+    private boolean connect() {
         if (connection.isConnected()) {
             return true;
         }
 
-        String serverIp = properties.getProperty("server.ip");
-        int serverPort = Integer.parseInt(properties.getProperty("server.port"));
+        String serverIp = bot.getLocalBotConfig().serverIp();
+        int serverPort = bot.getLocalBotConfig().serverPort();
 
         if (!connection.connect(serverIp, serverPort)) {
             System.err.println("Failed to connect to " + serverIp + ":" + serverPort);
@@ -146,7 +145,7 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
             System.err.println("Game world is not running!");
         }
 
-        boolean fillEmptySlotsWithDummies = Boolean.parseBoolean(properties.getProperty("lobby.fillEmptySlots"));
+        boolean fillEmptySlotsWithDummies = bot.getLocalBotConfig().lobbyConfig().fillEmptySlots();
         this.send(new MessageContainer(
                 TO_LOBBY_DIRECTLY.get(),
                 StartGameConfig.builder().fillEmptySlotsWithDummies(fillEmptySlotsWithDummies).build()
@@ -235,7 +234,7 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
         return bot;
     }
 
-    private enum DebugMode {
+    public enum DebugMode {
         NONE,
         INTERNAL,
         PUBLIC,

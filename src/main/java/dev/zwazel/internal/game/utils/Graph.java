@@ -1,11 +1,63 @@
 package dev.zwazel.internal.game.utils;
 
+import dev.zwazel.internal.game.map.MapDefinition;
 import lombok.Data;
 
 @Data
 public class Graph {
     private Node[][] nodes;
 
+    public Graph(MapDefinition mapDefinition, boolean allowDiagonal) {
+        nodes = new Node[(int) mapDefinition.depth()][(int) mapDefinition.width()];
+
+        // Create nodes
+        for (int y = 0; y < mapDefinition.depth(); y++) {
+            for (int x = 0; x < mapDefinition.width(); x++) {
+                Node node = new Node(mapDefinition.tiles()[y][x], x, y);
+                nodes[y][x] = node;
+            }
+        }
+
+        // Create edges
+        for (Node[] row : nodes) {
+            for (Node node : row) {
+                int x = node.getX();
+                int y = node.getY();
+
+                // Add horizontal and vertical edges
+                if (x > 0) {
+                    node.getNeighbours().add(getNode(x - 1, y));
+                }
+                if (x < mapDefinition.width() - 1) {
+                    node.getNeighbours().add(getNode(x + 1, y));
+                }
+                if (y > 0) {
+                    node.getNeighbours().add(getNode(x, y - 1));
+                }
+                if (y < mapDefinition.depth() - 1) {
+                    node.getNeighbours().add(getNode(x, y + 1));
+                }
+
+                // Add diagonal edges
+                if (allowDiagonal) {
+                    if (x > 0 && y > 0) {
+                        node.getNeighbours().add(getNode(x - 1, y - 1));
+                    }
+                    if (x < mapDefinition.width() - 1 && y > 0) {
+                        node.getNeighbours().add(getNode(x + 1, y - 1));
+                    }
+                    if (x > 0 && y < mapDefinition.depth() - 1) {
+                        node.getNeighbours().add(getNode(x - 1, y + 1));
+                    }
+                    if (x < mapDefinition.width() - 1 && y < mapDefinition.depth() - 1) {
+                        node.getNeighbours().add(getNode(x + 1, y + 1));
+                    }
+                }
+            }
+        }
+    }
+
+    @Deprecated(forRemoval = true)
     public Graph(float[][] heights, boolean allowDiagonal) {
         nodes = new Node[heights.length][heights[0].length];
 

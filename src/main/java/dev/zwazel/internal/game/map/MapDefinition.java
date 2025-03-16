@@ -43,6 +43,12 @@ public record MapDefinition(long width, long depth, SimplifiedRGB floorColor,
                 minDistance = distance;
                 closest = tile;
             }
+
+            assert closest != null;
+            double closestDistance = Math.abs(closest.getX() - worldPos.getX()) + Math.abs(closest.getZ() - worldPos.getZ());
+            if (distance < closestDistance) {
+                closest = tile;
+            }
         }
 
         assert closest != null;
