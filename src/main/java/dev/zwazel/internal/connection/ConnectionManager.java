@@ -1,8 +1,8 @@
 package dev.zwazel.internal.connection;
 
-import dev.zwazel.PropertyHandler;
 import dev.zwazel.internal.InternalGameWorld;
 import dev.zwazel.internal.PublicGameWorld;
+import dev.zwazel.internal.config.LocalBotConfig;
 import dev.zwazel.internal.message.MessageContainer;
 import dev.zwazel.internal.message.data.FirstContact;
 import lombok.Getter;
@@ -14,7 +14,6 @@ import static dev.zwazel.internal.message.MessageTarget.Type.SERVER_ONLY;
 
 public class ConnectionManager {
     private static ConnectionManager instance;
-    private final PropertyHandler properties = PropertyHandler.getInstance();
 
     private InternalGameWorld world;
     @Getter
@@ -51,16 +50,20 @@ public class ConnectionManager {
             listenerThread.start();
 
             PublicGameWorld publicGameWorld = this.world.getPublicGameWorld();
+            LocalBotConfig botConfig = this.world.getBot().getLocalBotConfig();
             // Sending first contact message
             MessageContainer message = new MessageContainer(
                     SERVER_ONLY.get(),
                     FirstContact.builder()
-                            .lobbyName(properties.getProperty("lobby.name"))
-                            .botName(properties.getProperty("bot.name"))
-                            .mapName(properties.getProperty("lobby.map.name"))
-                            .teamName(properties.getProperty("lobby.team.name"))
-                            .botAssignedSpawnPoint(properties.getProperty("lobby.spawnPoint") != null ?
-                                    Long.parseLong(properties.getProperty("lobby.spawnPoint")) : null)
+                            .lobbyName(botConfig.lobbyConfig().lobbyName())
+                            .botName(botConfig.botName())
+                            .mapName(botConfig.lobbyConfig().mapName())
+                            .teamName(botConfig.lobbyConfig().teamName())
+                            .botAssignedSpawnPoint(
+                                    botConfig.lobbyConfig().spawnPoint().isPresent() ?
+                                            Long.valueOf(botConfig.lobbyConfig().spawnPoint().get())
+                                            : null
+                            )
                             .clientType(FirstContact.ClientType.PLAYER)
                             .tankType(publicGameWorld.getTank().getTankType())
                             .build()
