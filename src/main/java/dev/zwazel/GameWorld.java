@@ -27,7 +27,7 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
 
     private final BlockingQueue<MessageContainer> incomingMessages = new LinkedBlockingQueue<>();
     private final BlockingQueue<MessageContainer> outgoingMessages = new LinkedBlockingQueue<>();
-    private DebugMode debug = DebugMode.NONE;
+    private DebugMode debug;
     private boolean immediatelyStartGame;
     private ConnectionManager connection;
     private GameState gameState;
@@ -76,7 +76,7 @@ public class GameWorld implements InternalGameWorld, PublicGameWorld {
 
     private void setup(BotInterface bot, boolean immediatelyStartGame) {
         this.bot = bot;
-        this.debug = bot.getLocalBotConfig().debugMode();
+        this.debug = bot.getLocalBotConfig().debugMode().orElse(DebugMode.NONE);
         this.tank = TankFactory.createTank(bot.getLocalBotConfig().tankType());
         this.immediatelyStartGame = immediatelyStartGame;
     }
