@@ -257,28 +257,43 @@ public class MapVisualiser extends JPanel {
 
         // Fourth pass: Draw costs
         if (graph == null) {
-            // Fifth pass: Draw cell borders
-            drawCellBorders(g2d, mapDefinition);
-            return;
-        }
-        for (Node[] row : graph.getNodes()) {
-            for (Node node : row) {
-                String cost = String.format("%.2f", node.getCost());
-                if (node.getCost() == Double.MAX_VALUE) {
-                    cost = "∞";
-                }
-
-                g2d.setColor(Color.BLACK);
-                g2d.drawString(
-                        cost,
-                        node.getX() * CELL_SIZE + 5,
-                        node.getY() * CELL_SIZE + 15
-                );
-            }
+            // Draw costs of the path
+            drawCost(g2d, path);
+        } else {
+            // Draw costs of the entire graph
+            drawCost(g2d, graph.getNodes());
         }
 
         // Fifth pass: Draw cell borders
         drawCellBorders(g2d, mapDefinition);
+    }
+
+    private void drawCost(Graphics2D g2d, Node[][] nodes) {
+        for (Node[] row : nodes) {
+            for (Node node : row) {
+                drawCost(g2d, node);
+            }
+        }
+    }
+
+    private void drawCost(Graphics2D g2d, LinkedList<Node> nodes) {
+        for (Node node : nodes) {
+            drawCost(g2d, node);
+        }
+    }
+
+    private void drawCost(Graphics2D g2d, Node node) {
+        String cost = String.format("%.2f", node.getCost());
+        if (node.getCost() == Double.MAX_VALUE) {
+            cost = "∞";
+        }
+
+        g2d.setColor(Color.BLACK);
+        g2d.drawString(
+                cost,
+                node.getX() * CELL_SIZE + 5,
+                node.getY() * CELL_SIZE + 15
+        );
     }
 
     private void drawCellBorders(Graphics2D g2d, MapDefinition mapDefinition) {
