@@ -12,8 +12,7 @@ import javax.swing.*;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 
 @RequiredArgsConstructor
@@ -77,6 +76,31 @@ public class GameSimulationThread implements Runnable {
 
         if (messageList.isEmpty()) {
             return;
+        }
+
+        // Use a set to track which unique message types have been encountered (from the end)
+        Set<Class<?>> seenUniqueTypes = new HashSet<>();
+        // Iterate backward to keep the most recent message and remove older duplicates
+        ListIterator<MessageContainer> iterator = messageList.listIterator(messageList.size());
+        while (iterator.hasPrevious()) {
+            MessageContainer current = iterator.previous();
+            if (current.getMessage().isUnique()) {
+                if (seenUniqueTypes.contains(current.getMessage().getClass())) {
+                    // Remove this outdated message of the same unique type
+                    iterator.remove();
+
+                    if (internalWorld.isInternalDebug()) {
+                        System.out.println("Duplicate message type removed: " + current.getMessage().getClass().getSimpleName());
+                    }
+                } else {
+                    // Mark this unique type as encountered
+                    seenUniqueTypes.add(current.getMessage().getClass());
+
+                    if (internalWorld.isInternalDebug()) {
+                        System.out.println("Unique message type: " + current.getMessage().getClass().getSimpleName());
+                    }
+                }
+            }
         }
 
         messageList.forEach(message -> message.applyBeforeSend(internalWorld));
