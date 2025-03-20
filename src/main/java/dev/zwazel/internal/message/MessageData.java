@@ -1,5 +1,6 @@
 package dev.zwazel.internal.message;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import dev.zwazel.internal.InternalGameWorld;
@@ -56,5 +57,17 @@ public interface MessageData {
      * @param world the world
      */
     default void applyOnAddingToQueue(InternalGameWorld world) {
+    }
+
+    /**
+     * Determines if the message is unique.
+     * If it is unique, before sending all messages to the server at the end of the tick, we remove all other messages of the same type.
+     * So only the latest message of this type is sent.
+     *
+     * @return if the message is unique
+     */
+    @JsonIgnore
+    default boolean isUnique() {
+        return false;
     }
 }

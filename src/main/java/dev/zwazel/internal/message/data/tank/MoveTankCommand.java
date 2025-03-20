@@ -24,4 +24,9 @@ public record MoveTankCommand(double distance) implements MessageData {
                 predictedState.transformTurret(), predictedState.state(), predictedState.shootCooldown(), predictedState.currentHealth());
         world.updatePredictedState(predictedState);
     }
+
+    @Override
+    public boolean isUnique() {
+        return true;
+    }
 }

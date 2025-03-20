@@ -28,4 +28,9 @@ public record RotateTankTurretCommand(double yawAngle, double pitchAngle) implem
         predictedState = new ClientState(predictedState.id(), currentBodyTransform, newTurretTransform, predictedState.state(), predictedState.shootCooldown(), predictedState.currentHealth());
         world.updatePredictedState(predictedState);
     }
+
+    @Override
+    public boolean isUnique() {
+        return true;
+    }
 }
