@@ -13,7 +13,7 @@ public class Graph {
         // Create nodes
         for (int y = 0; y < mapDefinition.depth(); y++) {
             for (int x = 0; x < mapDefinition.width(); x++) {
-                Node node = new Node(mapDefinition.tiles()[y][x], x, y);
+                Node node = new Node(mapDefinition.getTileHeight(x, y), x, y);
                 nodes[y][x] = node;
             }
         }

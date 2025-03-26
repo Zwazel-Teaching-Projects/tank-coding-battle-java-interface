@@ -112,6 +112,7 @@ public record MapDefinition(long width, long depth, SimplifiedRGB floorColor,
      * @param x the x coordinate of the tile in the map grid (0-indexed)
      * @param y the y coordinate of the tile in the map grid (0-indexed)
      * @return the tile as a Vec3 in grid coordinates. the y is the height of the tile.
+     * the x and z are the x and y coordinates of the tile in the 2D map grid.
      */
     public Vec3 getTile(int x, int y) {
         // Check if the coordinates are valid

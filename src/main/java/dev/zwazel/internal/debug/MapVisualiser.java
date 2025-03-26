@@ -283,8 +283,8 @@ public class MapVisualiser extends JPanel {
     }
 
     private void drawCost(Graphics2D g2d, Node node) {
-        String cost = String.format("%.2f", node.getCost());
-        if (node.getCost() == Double.MAX_VALUE) {
+        String cost = String.format("%.2f", node.getFCost());
+        if (node.getFCost() == Double.MAX_VALUE) {
             cost = "∞";
         }
 

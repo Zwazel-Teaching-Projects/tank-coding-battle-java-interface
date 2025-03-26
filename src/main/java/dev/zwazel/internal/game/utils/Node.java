@@ -15,7 +15,17 @@ public class Node {
     private final int y;
     private final LinkedList<Node> neighbours = new LinkedList<>();
     private Node parent;
-    private double cost = Double.MAX_VALUE;
+
+    // Actual cost from the start node to this node.
+    private double gCost = Double.MAX_VALUE;
+
+    // Heuristic estimated cost from this node to the target.
+    private double hCost = 0;
+
+    // fCost is the sum of gCost and hCost.
+    public double getFCost() {
+        return gCost + hCost;
+    }
 
     @Override
     public String toString() {
@@ -23,7 +33,9 @@ public class Node {
                 "height=" + height +
                 ", x=" + x +
                 ", y=" + y +
-                ", cost=" + cost +
+                ", gCost=" + gCost +
+                ", hCost=" + hCost +
+                ", fCost=" + getFCost() +
                 '}';
     }
 }
